@@ -1,0 +1,607 @@
+/* ============================================================
+   WHERE'S EPSTEIN? — styles/effects.css  (Polish Pass 3)
+   Home button animations, page arrows, preview items, easter eggs.
+   All JS-toggled class names preserved exactly.
+   ============================================================ */
+
+/* ============================================================
+   IMAGE BUTTONS (invisible hit targets on home screen)
+   ============================================================ */
+.home-viewport {
+  --home-wheel-boost: 1;
+}
+
+.image-button {
+  transition: box-shadow 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.image-button:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
+.image-button:active {
+  transform: none;
+}
+
+/* ============================================================
+   HOME BUTTON ART
+   JS toggles: is-prepping / is-entering / is-settled / is-hovered / is-pressed
+   ============================================================ */
+.home-button-art {
+  position: absolute;
+  width: auto;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.30));
+  z-index: 1;
+  transform: translateY(var(--home-enter-offset, 140%));
+  will-change: transform, filter;
+  transform-origin: center center;
+  animation: home-idle-glow 3s ease-in-out infinite;
+  animation-play-state: paused;
+  transition: transform 260ms cubic-bezier(0.18, 0.8, 0.2, 1), filter 240ms ease;
+}
+
+/* Hovered — lift + gold glow */
+.home-button-art.is-hovered,
+.image-button:hover + .home-button-art,
+.image-button:focus-visible + .home-button-art {
+  animation: none;
+  filter:
+    drop-shadow(0 18px 30px rgba(0, 0, 0, 0.30))
+    drop-shadow(0 0 24px rgba(255, 216, 78, 0.28))
+    brightness(1.08)
+    saturate(1.12);
+  transform: translateY(-2px) scale(1.045);
+}
+
+.home-button-art.is-prepping {
+  opacity: 1;
+  transform: translateY(var(--home-enter-offset, 140%));
+  animation-play-state: paused;
+}
+
+.home-button-art.is-entering {
+  opacity: 1;
+  transform: translateY(0);
+  transition: transform 1340ms cubic-bezier(0.12, 0.88, 0.18, 1.04);
+  animation-play-state: paused;
+}
+
+.home-button-art.is-settled {
+  opacity: 1;
+  transform: translateY(0);
+  animation-play-state: running;
+}
+
+.home-button-art.is-settled.is-hovered,
+.image-button:hover + .home-button-art.is-settled,
+.image-button:focus-visible + .home-button-art.is-settled {
+  transform: translateY(-2px) scale(1.045);
+}
+
+.home-button-art.is-pressed {
+  animation: none;
+  transform: translateY(1px) scale(0.988);
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.34)) brightness(0.98);
+}
+
+/* ============================================================
+   HOME BUTTON SHEEN
+   JS toggles: is-settled / is-hovered / is-pressed
+   ============================================================ */
+.home-button-sheen {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: 24px;
+  opacity: 0;
+  transform: translateY(var(--home-enter-offset, 140%));
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.home-button-sheen::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -38%;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  transform: skewX(-24deg);
+  opacity: 0;
+}
+
+.home-button-sheen.is-settled {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.home-button-sheen.is-hovered::before,
+.home-button-sheen.is-glinting::before {
+  animation: home-shimmer 1100ms ease-in-out 1;
+}
+
+.home-button-sheen.is-pressed {
+  transform: translateY(3px) scale(0.982);
+}
+
+.home-viewport.home-animating #cloud1Layer,
+.home-viewport.home-animating #cloud2Layer,
+.home-viewport.home-animating #cloud3Layer,
+.home-viewport.home-animating #cloudTiny1Layer,
+.home-viewport.home-animating #cloudTiny2Layer,
+.home-viewport.home-animating #cloudTiny3Layer,
+.home-viewport.home-animating #cloudTiny4Layer,
+.home-viewport.home-animating #wheelLayer,
+.home-viewport.home-animating #wheelStandLayer,
+.home-viewport.home-animating #titleBannerLayer,
+.home-viewport.home-animating #magnifierDecorLayer,
+.home-viewport.home-animating #magnifierFacesLayer,
+.home-viewport.home-animating #airballLayer,
+.home-viewport.home-animating #homeNameButton {
+  will-change: transform, opacity;
+}
+
+.home-viewport.home-animating #titleBannerLayer,
+.home-viewport.home-animating #homeNameButton,
+.home-viewport.home-animating .home-debug-box[data-editor-key="titleBanner"],
+.home-viewport.home-animating .home-debug-box[data-editor-key="nameLink"] {
+  animation: layer-fade-in 2020ms cubic-bezier(0.18, 0.82, 0.2, 1) 420ms both, title-float 20.8s cubic-bezier(0.28, 0.1, 0.22, 1) infinite;
+  animation-delay: 420ms, 3200ms;
+}
+
+.home-viewport.home-animating #magnifierDecorLayer,
+.home-viewport.home-animating .home-debug-box[data-editor-key="magnifierDecor"] {
+  animation: layer-fade-in 1480ms cubic-bezier(0.18, 0.82, 0.2, 1) 1080ms both, magnifier-float 14.8s ease-in-out infinite;
+  animation-delay: 1080ms, 2860ms;
+}
+
+.home-viewport.home-animating #magnifierFacesLayer {
+  transform-origin: center center;
+  animation: faces-fade-in 1380ms cubic-bezier(0.18, 0.82, 0.2, 1) 1680ms both, magnifier-float-faces 14.8s ease-in-out infinite;
+  animation-delay: 1680ms, 2860ms;
+}
+
+.home-viewport.home-animating #wheelStandLayer {
+  animation: layer-fade-in 1220ms ease 1780ms both;
+}
+
+.home-viewport.home-animating #wheelLayer {
+  transform-origin: center center;
+  animation: layer-fade-in 1420ms ease 2320ms both;
+}
+
+.home-viewport.home-animating #blimpLayer,
+.home-viewport.home-animating .home-debug-box[data-editor-key="blimp"] {
+  animation: layer-fade-in 1680ms ease 2340ms both, blimp-float 36s cubic-bezier(0.28, 0.08, 0.22, 1) infinite alternate;
+  animation-delay: 2340ms, 4100ms;
+}
+
+.home-viewport.home-animating #airballLayer,
+.home-viewport.home-animating .home-debug-box[data-editor-key="airball"] {
+  animation: layer-fade-in 1500ms ease 1880ms both, airball-float 22.6s cubic-bezier(0.2, 0.66, 0.22, 1) infinite;
+  animation-delay: 1880ms, 3160ms;
+}
+
+.home-viewport.home-animating #cloud1Layer {
+  animation: layer-fade-in 2140ms cubic-bezier(0.18, 0.82, 0.2, 1) 4280ms both, cloud-drift-1 76s linear infinite;
+  animation-delay: 4280ms, -18s;
+}
+
+.home-viewport.home-animating #cloud2Layer {
+  animation: layer-fade-in 2280ms cubic-bezier(0.18, 0.82, 0.2, 1) 4480ms both, cloud-drift-2 102s linear infinite;
+  animation-delay: 4480ms, -42s;
+}
+
+.home-viewport.home-animating #cloud3Layer {
+  animation: layer-fade-in 2420ms cubic-bezier(0.18, 0.82, 0.2, 1) 4680ms both, cloud-drift-3 128s linear infinite;
+  animation-delay: 4680ms, -67s;
+}
+
+.home-viewport.home-animating #cloudTiny1Layer {
+  animation: layer-fade-in 2260ms cubic-bezier(0.18, 0.82, 0.2, 1) 4460ms both, cloud-drift-2 112s linear infinite;
+  animation-delay: 4460ms, -24s;
+}
+
+.home-viewport.home-animating #cloudTiny2Layer {
+  animation: layer-fade-in 2380ms cubic-bezier(0.18, 0.82, 0.2, 1) 4620ms both, cloud-drift-3 136s linear infinite;
+  animation-delay: 4620ms, -58s;
+}
+
+.home-viewport.home-animating #cloudTiny3Layer {
+  animation: layer-fade-in 2460ms cubic-bezier(0.18, 0.82, 0.2, 1) 4780ms both, cloud-drift-1 144s linear infinite;
+  animation-delay: 4780ms, -81s;
+}
+
+.home-viewport.home-animating #cloudTiny4Layer {
+  animation: layer-fade-in 2520ms cubic-bezier(0.18, 0.82, 0.2, 1) 4940ms both, cloud-drift-2 154s linear infinite;
+  animation-delay: 4940ms, -103s;
+}
+
+.home-viewport.home-live #titleBannerLayer,
+.home-viewport.home-live #homeNameButton {
+  animation: title-float 20.8s cubic-bezier(0.28, 0.1, 0.22, 1) infinite;
+}
+
+.home-viewport.home-live #magnifierDecorLayer {
+  animation: magnifier-float 14.8s ease-in-out infinite;
+}
+
+.home-viewport.home-live #magnifierFacesLayer {
+  animation: magnifier-float-faces 14.8s ease-in-out infinite;
+}
+
+.home-viewport.home-live #wheelLayer {
+  transform-origin: center center;
+  animation: none;
+}
+
+.home-viewport.home-live #blimpLayer {
+  animation: blimp-float 36s cubic-bezier(0.28, 0.08, 0.22, 1) infinite alternate;
+}
+
+.home-viewport.home-live #airballLayer {
+  animation: airball-float 22.6s cubic-bezier(0.2, 0.66, 0.22, 1) infinite;
+}
+
+.home-viewport.home-live #cloud1Layer {
+  animation: cloud-drift-1 76s linear infinite;
+  animation-delay: -18s;
+}
+
+.home-viewport.home-live #cloud2Layer {
+  animation: cloud-drift-2 102s linear infinite;
+  animation-delay: -42s;
+}
+
+.home-viewport.home-live #cloud3Layer {
+  animation: cloud-drift-3 128s linear infinite;
+  animation-delay: -67s;
+}
+
+.home-viewport.home-live #cloudTiny1Layer {
+  animation: cloud-drift-2 112s linear infinite;
+  animation-delay: -24s;
+}
+
+.home-viewport.home-live #cloudTiny2Layer {
+  animation: cloud-drift-3 136s linear infinite;
+  animation-delay: -58s;
+}
+
+.home-viewport.home-live #cloudTiny3Layer {
+  animation: cloud-drift-1 144s linear infinite;
+  animation-delay: -81s;
+}
+
+.home-viewport.home-live #cloudTiny4Layer {
+  animation: cloud-drift-2 154s linear infinite;
+  animation-delay: -103s;
+}
+
+.home-viewport.home-editor-active #cloud1Layer,
+.home-viewport.home-editor-active #cloud2Layer,
+.home-viewport.home-editor-active #cloud3Layer,
+.home-viewport.home-editor-active #cloudTiny1Layer,
+.home-viewport.home-editor-active #cloudTiny2Layer,
+.home-viewport.home-editor-active #cloudTiny3Layer,
+.home-viewport.home-editor-active #cloudTiny4Layer,
+.home-viewport.home-editor-active #blimpLayer,
+.home-viewport.home-editor-active #wheelLayer,
+.home-viewport.home-editor-active #wheelStandLayer,
+.home-viewport.home-editor-active #titleBannerLayer,
+.home-viewport.home-editor-active #magnifierDecorLayer,
+.home-viewport.home-editor-active #magnifierFacesLayer,
+.home-viewport.home-editor-active #airballLayer,
+.home-viewport.home-editor-active #homeNameButton,
+.home-viewport.home-editor-active .home-debug-box {
+  animation: none !important;
+}
+
+body[data-motion="reduced"] .home-viewport.home-animating #titleBannerLayer,
+body[data-motion="reduced"] .home-viewport.home-animating #homeNameButton,
+body[data-motion="reduced"] .home-viewport.home-animating #magnifierDecorLayer,
+body[data-motion="reduced"] .home-viewport.home-animating #magnifierFacesLayer,
+body[data-motion="reduced"] .home-viewport.home-animating #airballLayer,
+body[data-motion="reduced"] .home-viewport.home-live #titleBannerLayer,
+body[data-motion="reduced"] .home-viewport.home-live #homeNameButton,
+body[data-motion="reduced"] .home-viewport.home-live #magnifierDecorLayer,
+body[data-motion="reduced"] .home-viewport.home-live #magnifierFacesLayer,
+body[data-motion="reduced"] .home-viewport.home-live #airballLayer {
+  animation: none !important;
+  transform: rotate(var(--home-layer-rotate, 0deg));
+}
+
+/* ============================================================
+   TARGET PREVIEW LIST & ITEMS
+   ============================================================ */
+.target-preview-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.65rem;
+  margin: 0.7rem 0;
+}
+
+.intro-preview-list {
+  max-width: 320px;
+  margin-inline: auto;
+}
+
+.preview-item {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+}
+
+/* Found state — red X bars */
+.preview-item.is-found { opacity: 0.60; }
+
+.preview-item.is-found::before,
+.preview-item.is-found::after {
+  content: "";
+  position: absolute;
+  left: 8%; right: 8%;
+  top: 34%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 104, 96, 0.96);
+  box-shadow: 0 0 18px rgba(255, 104, 96, 0.60);
+  animation: found-cross-pulse 1.4s ease-in-out infinite;
+}
+.preview-item.is-found::before { transform: rotate(26deg); }
+.preview-item.is-found::after  { transform: rotate(-26deg); }
+
+.preview-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.preview-badge {
+  display: inline-flex;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.25rem 0.48rem;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.preview-item.is-found .preview-badge {
+  color: #ffe2de;
+  background: rgba(255, 104, 96, 0.20);
+  border-color: rgba(255, 104, 96, 0.44);
+}
+
+/* Found hitbox on scene — class added by game-renderer.js */
+.hitbox-shape-found {
+  border-color: rgba(82, 212, 148, 0.95);
+  background: rgba(82, 212, 148, 0.18);
+  box-shadow:
+    0 0 0 3px rgba(82, 212, 148, 0.28),
+    0 0 22px rgba(82, 212, 148, 0.68);
+  animation: found-hitbox-pulse 1.3s ease-in-out infinite;
+}
+
+/* ============================================================
+   EASTER EGG MODES
+   ============================================================ */
+body.easter-arcade {
+  --accent:   #7affd7;
+  --accent-2: #4ea3ff;
+  --good:     #9eff83;
+}
+
+body.easter-arcade .menu-shell,
+body.easter-arcade .home-viewport {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(122,255,215,0.15), transparent 22%),
+    radial-gradient(circle at 90% 18%, rgba(78,163,255,0.15),  transparent 20%),
+    linear-gradient(160deg, #060f1a, #0f2340 70%, #07101c);
+}
+
+body.easter-arcade .level-stars,
+body.easter-arcade .result-stars,
+body.easter-arcade .result-star--filled {
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(122, 255, 215, 0.52);
+}
+
+/* ============================================================
+   KEYFRAMES (kept for backward compat — home-spin still used by name)
+   ============================================================ */
+
+@keyframes home-idle-glow {
+  0%, 100% { filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.30)); }
+  50% {
+    filter:
+      drop-shadow(0 22px 40px rgba(0, 0, 0, 0.36))
+      drop-shadow(0 0 22px rgba(255, 216, 78, 0.20));
+  }
+}
+
+@keyframes home-shimmer {
+  0%, 68% { transform: translateX(-180%) skewX(-24deg); opacity: 0; }
+  72%      { opacity: 0.88; }
+  84%      { transform: translateX(350%) skewX(-24deg); opacity: 0.88; }
+  100%     { transform: translateX(370%) skewX(-24deg); opacity: 0; }
+}
+
+@keyframes layer-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cloud-drift-1 {
+  0% { transform: translate3d(-40%, 0, 0) scale(0.98); opacity: 0; }
+  10% { opacity: 0.82; }
+  24% { opacity: 0.96; }
+  58% { transform: translate3d(38%, -3px, 0) scale(1); opacity: 0.98; }
+  78% { opacity: 0.96; }
+  92% { opacity: 0.62; }
+  100% { transform: translate3d(122%, 0, 0) scale(1.01); opacity: 0; }
+}
+
+@keyframes cloud-drift-2 {
+  0% { transform: translate3d(-46%, 0, 0) scale(0.94); opacity: 0; }
+  12% { opacity: 0.72; }
+  26% { opacity: 0.9; }
+  56% { transform: translate3d(36%, 2px, 0) scale(0.97); opacity: 0.9; }
+  82% { opacity: 0.9; }
+  96% { opacity: 0.54; }
+  100% { transform: translate3d(124%, 0, 0) scale(0.99); opacity: 0; }
+}
+
+@keyframes cloud-drift-3 {
+  0% { transform: translate3d(-52%, 0, 0) scale(0.9); opacity: 0; }
+  14% { opacity: 0.6; }
+  28% { opacity: 0.8; }
+  54% { transform: translate3d(34%, -2px, 0) scale(0.93); opacity: 0.82; }
+  84% { opacity: 0.8; }
+  97% { opacity: 0.48; }
+  100% { transform: translate3d(126%, 0, 0) scale(0.95); opacity: 0; }
+}
+
+@keyframes ferris-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes title-float {
+  0% { transform: translate3d(0, 0, 0); }
+  18% { transform: translate3d(5px, -7px, 0); }
+  40% { transform: translate3d(8px, -16px, 0); }
+  63% { transform: translate3d(-5px, -13px, 0); }
+  82% { transform: translate3d(-3px, -5px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes magnifier-float {
+  0%, 100% { transform: translate(0, 0) rotate(var(--home-layer-rotate, -6deg)); }
+  50% { transform: translate(10px, -7px) rotate(calc(var(--home-layer-rotate, -6deg) + 1.15deg)); }
+}
+
+@keyframes faces-glow {
+  0%, 100% { opacity: 0.82; transform: translate(0, 0); }
+  50% { opacity: 1; transform: translate(2px, -2px); }
+}
+
+@keyframes faces-fade-in {
+  from { opacity: 0; transform: rotate(var(--home-layer-rotate, -6deg)) scale(0.985); }
+  to { opacity: 1; transform: rotate(var(--home-layer-rotate, -6deg)) scale(1); }
+}
+
+@keyframes magnifier-float-faces {
+  0%, 100% { transform: translate(0, 0) rotate(var(--home-layer-rotate, -6deg)); }
+  50% { transform: translate(10px, -7px) rotate(calc(var(--home-layer-rotate, -6deg) + 1.15deg)); }
+}
+
+@keyframes airball-float {
+  0%, 100% { transform: translate(0, 0) rotate(-0.4deg); }
+  18% { transform: translate(6px, -15px) rotate(-0.1deg); }
+  42% { transform: translate(10px, -27px) rotate(0.35deg); }
+  68% { transform: translate(8px, -36px) rotate(0.75deg); }
+  84% { transform: translate(4px, -19px) rotate(0.16deg); }
+}
+
+@keyframes blimp-float {
+  0% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+  18% { transform: translate3d(10px, -2px, 0) rotate(-0.85deg); }
+  44% { transform: translate3d(26px, 1px, 0) rotate(-0.65deg); }
+  72% { transform: translate3d(41px, -3px, 0) rotate(-0.92deg); }
+  100% { transform: translate3d(58px, 0, 0) rotate(-1deg); }
+}
+
+body[data-motion="reduced"] .home-viewport.home-animating #titleBannerLayer,
+body[data-motion="reduced"] .home-viewport.home-animating #homeNameButton {
+  animation: layer-fade-in 420ms ease 160ms both !important;
+}
+
+body[data-motion="reduced"] .home-viewport.home-animating #magnifierDecorLayer {
+  animation: layer-fade-in 420ms ease 520ms both !important;
+}
+
+body[data-motion="reduced"] .home-viewport.home-animating #magnifierFacesLayer {
+  animation: faces-fade-in 420ms ease 880ms both !important;
+}
+
+body[data-motion="reduced"] .home-viewport.home-animating #airballLayer,
+body[data-motion="reduced"] .home-viewport.home-animating #blimpLayer,
+body[data-motion="reduced"] .home-viewport.home-animating #wheelStandLayer,
+body[data-motion="reduced"] .home-viewport.home-animating #wheelLayer {
+  animation: layer-fade-in 420ms ease 1180ms both !important;
+}
+
+body[data-motion="reduced"] .home-viewport.home-animating #cloud1Layer,
+body[data-motion="reduced"] .home-viewport.home-animating #cloud2Layer,
+body[data-motion="reduced"] .home-viewport.home-animating #cloud3Layer,
+body[data-motion="reduced"] .home-viewport.home-animating #cloudTiny1Layer,
+body[data-motion="reduced"] .home-viewport.home-animating #cloudTiny2Layer,
+body[data-motion="reduced"] .home-viewport.home-animating #cloudTiny3Layer,
+body[data-motion="reduced"] .home-viewport.home-animating #cloudTiny4Layer {
+  animation: layer-fade-in 420ms ease 2360ms both !important;
+}
+
+body[data-motion="reduced"] .home-viewport.home-live #cloud1Layer,
+body[data-motion="reduced"] .home-viewport.home-live #cloud2Layer,
+body[data-motion="reduced"] .home-viewport.home-live #cloud3Layer,
+body[data-motion="reduced"] .home-viewport.home-live #cloudTiny1Layer,
+body[data-motion="reduced"] .home-viewport.home-live #cloudTiny2Layer,
+body[data-motion="reduced"] .home-viewport.home-live #cloudTiny3Layer,
+body[data-motion="reduced"] .home-viewport.home-live #cloudTiny4Layer,
+body[data-motion="reduced"] .home-viewport.home-live #wheelLayer,
+body[data-motion="reduced"] .home-viewport.home-live #wheelStandLayer,
+body[data-motion="reduced"] .home-viewport.home-live #titleBannerLayer,
+body[data-motion="reduced"] .home-viewport.home-live #magnifierDecorLayer,
+body[data-motion="reduced"] .home-viewport.home-live #magnifierFacesLayer,
+body[data-motion="reduced"] .home-viewport.home-live #airballLayer,
+body[data-motion="reduced"] .home-viewport.home-live #blimpLayer,
+body[data-motion="reduced"] .home-viewport.home-live #homeNameButton {
+  animation: none !important;
+}
+
+body[data-motion="reduced"] .home-button-art.is-settled {
+  animation: none !important;
+}
+
+.home-viewport.home-decor-paused #cloud1Layer,
+.home-viewport.home-decor-paused #cloud2Layer,
+.home-viewport.home-decor-paused #cloud3Layer,
+.home-viewport.home-decor-paused #wheelLayer,
+.home-viewport.home-decor-paused #wheelStandLayer,
+.home-viewport.home-decor-paused #titleBannerLayer,
+.home-viewport.home-decor-paused #magnifierDecorLayer,
+.home-viewport.home-decor-paused #magnifierFacesLayer,
+.home-viewport.home-decor-paused #airballLayer,
+.home-viewport.home-decor-paused #homeNameButton {
+  animation-play-state: paused !important;
+}
+
+@keyframes found-cross-pulse {
+  0%, 100% { opacity: 0.88; box-shadow: 0 0 18px rgba(255, 104, 96, 0.44); }
+  50%       { opacity: 1;    box-shadow: 0 0 28px rgba(255, 104, 96, 0.80); }
+}
+
+@keyframes found-hitbox-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 3px rgba(82,212,148,0.28), 0 0 22px rgba(82,212,148,0.50);
+  }
+  50% {
+    transform: scale(1.022);
+    box-shadow: 0 0 0 4px rgba(82,212,148,0.36), 0 0 30px rgba(82,212,148,0.78);
+  }
+}
+
+/* Backward compat name — kept in case anything references it */
+@keyframes home-spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<!--
+Website by JerosGamer89
+Source code on github.com/Ascript89
+-->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta property="og:site_name" content="YourMinecraftServerName">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="YourMinecraftServerName">
+    <meta property="og:description" content="Visit YourMinecraftServerName's server website for more information">
+    <meta id="meta-image" property="og:image" itemprop="image" content="../assets/cube.jpg">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <meta name="author" content="JerosGamer89">
+    <meta name="keywords" content="mcserver,jerosgamer89">
+    <meta name="description" content="YourMinecraftServerName website">
+    <meta name="viewport" content="width=device-width">
+    <title>Minecraft server</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../assets/cube.jpg">
+    <style>
+        .mods-path {
+            border: 3px solid #bbb;
+            background-color: black;
+            color: white;
+            font-family: 'Minecraft';
+            font-size: 15px;
+            width: 420px;
+            max-width: 90%;
+            padding: 10px 15px 12px 15px;
+            text-align: center;
+        }
+        .mods-steps {
+            text-align: left;
+            display: inline-block;
+            font-family: 'Minecraft';
+            font-size: 14px;
+            line-height: 2;
+        }
+        .mods-steps a { color: #7fdbff; }
+    </style>
+</head>
+<body class="mcsplashscreen">
+    <h1>Mods</h1>
+    <div class="content">
+        <p>
+            Your mods folder is:<br>
+            <input class="mods-path" id="mods-path" value="%appdata%\.minecraft\mods" readonly disabled>
+            <br>
+            <a class="mc-lonely" style="display:inline-block;" onclick="copyPath()">Copy folder path</a>
+            <a class="mc-lonely" style="display:inline-block;" href="mods.bat" download>Open mods folder</a>
+        </p>
+        <p style="margin-top:25px;">
+            <strong>How to install a mod (Minecraft 1.21.11)</strong>
+            <br><br>
+            <span class="mods-steps">
+                1. Install a mod loader: <a href="https://fabricmc.net/use/" target="_blank">Fabric</a> or
+                <a href="https://neoforged.net/" target="_blank">NeoForge</a> (choose 1.21.x).<br>
+                2. Download the mod's <b>.jar</b> file (make sure it supports 1.21.11).<br>
+                3. Copy the <b>.jar</b> into the mods folder above.<br>
+                4. Open the Minecraft Launcher and start the loader profile (Fabric/NeoForge).<br>
+                5. Launch the game — your mods are now loaded!
+            </span>
+        </p>
+        <p>
+            Tip: press <b>Win + R</b>, paste the copied path, hit Enter and the folder opens in
+            File Explorer. The "Open mods folder" button saves the same batch file next to this site.
+        </p>
+    </div>
+
+    <center><footer>
+        <a href="https://fabricmc.net/use/" class="mc-btn mc-half">Fabric installer</a>
+        <a href="../" class="mc-btn mc-half">Done</a>
+    </footer></center>
+
+    <script>
+        function copyPath() {
+            var field = document.getElementById('mods-path');
+            var el = event.target;
+            var done = function () {
+                var old = el.textContent;
+                el.textContent = 'Copied!';
+                setTimeout(function () { el.textContent = old; }, 1500);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(field.value).then(done);
+                return;
+            }
+            field.removeAttribute('disabled');
+            field.select();
+            field.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            field.setAttribute('disabled', '');
+            done();
+        }
+    </script>
+</body>
+</html>
