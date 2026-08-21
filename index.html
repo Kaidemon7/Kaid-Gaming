@@ -1703,15 +1703,33 @@ function renderGames(filter) {
 $("game-search").addEventListener("input", function() { renderGames(this.value); });
 renderGames("");
 
+var _gameSrc = '';
 function openGame(src, name) {
+  _gameSrc = src;
   $("game-box-title").textContent = name;
-  $("game-frame").src = src;
   $("game-box").classList.remove("hidden");
+  var frame = $("game-frame");
+  frame.srcdoc = '<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#fff;font-family:sans-serif"><h2>Loading...</h2></body></html>';
+  var baseUrl = src.substring(0, src.lastIndexOf('/') + 1);
+  fetch(src, { mode: 'cors', credentials: 'omit' })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      if (html.indexOf('<base') === -1) {
+        html = html.replace(/<head([^>]*)>/i, '<head$1><base href="' + baseUrl + '">');
+        if (html.indexOf('<head') === -1 && html.indexOf('<HEAD') === -1) {
+          html = '<head><base href="' + baseUrl + '"></head>' + html;
+        }
+      }
+      frame.srcdoc = html;
+    })
+    .catch(function() {
+      frame.srcdoc = '<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#ff4444;font-family:sans-serif"><h2>Failed to load game</h2></body></html>';
+    });
 }
-function closeBox() { $("game-frame").src = "about:blank"; $("game-box").classList.add("hidden"); }
+function closeBox() { $("game-frame").srcdoc = ''; $("game-box").classList.add("hidden"); }
 $("game-box-close").addEventListener("click", closeBox);
 $("game-box-back").addEventListener("click", function() { closeBox(); tabs[1].click(); });
-$("game-box-newtab").addEventListener("click", function() { window.open($("game-frame").src, "_blank"); });
+$("game-box-newtab").addEventListener("click", function() { if (_gameSrc) window.open(_gameSrc, "_blank"); });
 
 /* Drag resize */
 (function() {
