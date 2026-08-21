@@ -2161,18 +2161,19 @@ if (ieProxyFrame) ieProxyFrame.addEventListener('load', function() {
 
 ieLog('Isolation Engine v3 ready', 'log');
 
-/* ===== Kaid Browser — Proxy-based web browser ===== */
+/* ===== Kaid Browser — Local server + CORS proxy fallback ===== */
 (function() {
+  var LOCAL_PROXY = 'http://localhost:3000';
   var PROXIES = [
+    { name: 'Local', fn: function(u) { return LOCAL_PROXY + '/fetch?url=' + encodeURIComponent(u); } },
     { name: 'CORSProxy', fn: function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
-    { name: 'AllOrigins', fn: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
-    { name: 'ThingProxy', fn: function(u) { return 'https://thingproxy.freeboard.io/fetch/' + u; } },
-    { name: 'Direct', fn: function(u) { return u; } }
+    { name: 'AllOrigins', fn: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } }
   ];
   var proxyIdx = 0;
   var history = [];
   var histIdx = -1;
   var currentUrl = '';
+  var pageCache = {};
   var kbFrame = document.getElementById('kb-frame');
   var kbUrl = document.getElementById('kb-url');
   var kbLoading = document.getElementById('kb-loading');
@@ -2193,77 +2194,54 @@ ieLog('Isolation Engine v3 ready', 'log');
     return input;
   }
 
-  function rewriteHtml(html, originalUrl) {
-    var base;
-    try { base = new URL(originalUrl); } catch(e) { return html; }
-    var origin = base.origin;
-
-    html = html.replace(/(href|src|action|data-src|poster|background|cite|longdesc|profile|usemap|dynsrc|lowsrc)\s*=\s*(['"])([^'"]*)\2/gi, function(m, attr, q, val) {
-      if (!val || val.startsWith('data:') || val.startsWith('javascript:') || val.startsWith('#') || val.startsWith('blob:')) return m;
-      var resolved;
-      try { resolved = new URL(val, base).href; } catch(e) { return m; }
-      return attr + '=' + q + val + q + ' data-kb-rewrite="' + encodeURIComponent(resolved) + '"';
-    });
-
-    html = html.replace(/<head([^>]*)>/i, '<head$1><base href="' + origin + '/">');
-    return html;
-  }
-
-  function buildInjectionScript() {
-    return '<scr' + 'ipt>' +
-    '(function(){' +
-    'document.addEventListener("click",function(e){' +
-    'var a=e.target.closest("a[href]");if(!a)return;' +
-    'var h=a.getAttribute("href");' +
-    'if(!h||h.startsWith("javascript:")||h.startsWith("#")||h.startsWith("mailto:"))return;' +
-    'e.preventDefault();' +
-    'try{var u=new URL(h,location.href).href;}catch(er){return;}' +
-    'window.parent.postMessage({type:"kb-navigate",url:u},"*");' +
-    '});' +
-    'document.addEventListener("submit",function(e){' +
-    'var f=e.target;if(!f.action)return;' +
-    'e.preventDefault();' +
-    'var fd=new FormData(f);var params=[];' +
-    'fd.forEach(function(v,k){params.push(encodeURIComponent(k)+"="+encodeURIComponent(v));});' +
-    'var method=(f.method||"GET").toUpperCase();' +
-    'var action=f.action;' +
-    'try{action=new URL(action,location.href).href;}catch(er){return;}' +
-    'if(method==="GET"){window.parent.postMessage({type:"kb-navigate",url:action+"?"+params.join("&")},"*");}' +
-    'else{window.parent.postMessage({type:"kb-navigate",url:action},"*");}' +
-    '});' +
-    'var mb=new MutationObserver(function(mutations){' +
-    'mutations.forEach(function(m){m.addedNodes.forEach(function(n){' +
-    'if(n.tagName==="SCRIPT"&&n.src){var s=document.createElement("script");s.textContent=n.textContent;n.parentNode.replaceChild(s,n);}' +
-    '});});});' +
-    'mb.observe(document.documentElement,{childList:true,subtree:true});' +
-    '})();' +
-    '</scr' + 'ipt>';
-  }
-
   function fetchAndRender(url) {
     if (!url) return;
     currentUrl = url;
     kbUrl.value = url.replace(/^https?:\/\//, '');
-    kbLoading.style.display = 'flex';
-    kbLoadingText.textContent = 'Loading through ' + PROXIES[proxyIdx].name + '...';
     kbError.style.display = 'none';
+
+    var cached = pageCache[url];
+    if (cached) {
+      kbFrame.srcdoc = cached;
+      kbProxyBadge.textContent = 'Cache';
+      if (histIdx === -1 || history[histIdx] !== url) {
+        history = history.slice(0, histIdx + 1);
+        history.push(url);
+        histIdx = history.length - 1;
+      }
+      updateNavButtons();
+      return;
+    }
+
+    kbLoading.style.display = 'flex';
+    kbLoadingText.textContent = 'Loading via ' + PROXIES[proxyIdx].name + '...';
     kbProxyBadge.textContent = PROXIES[proxyIdx].name;
 
     var proxyUrl = PROXIES[proxyIdx].fn(url);
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); }, proxyIdx === 0 ? 8000 : 12000);
 
-    fetch(proxyUrl, { mode: 'cors', credentials: 'omit' })
+    fetch(proxyUrl, { mode: 'cors', credentials: 'omit', signal: controller.signal })
       .then(function(r) {
+        clearTimeout(timer);
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        var ct = r.headers.get('content-type') || '';
-        if (ct.indexOf('text/html') === -1 && ct.indexOf('text/') === -1 && ct.indexOf('application/json') > -1)
-          throw new Error('Not HTML content');
         return r.text();
       })
       .then(function(html) {
-        var rewritten = rewriteHtml(html, url);
-        var injection = buildInjectionScript();
-        var finalHtml = rewritten.replace(/<\/head>/i, injection + '</head>');
-        kbFrame.srcdoc = finalHtml;
+        var isLocal = proxyIdx === 0;
+        if (!isLocal) {
+          var base;
+          try { base = new URL(url); } catch(e) {}
+          if (base) {
+            var baseUrl = base.origin + base.pathname.substring(0, base.pathname.lastIndexOf('/') + 1);
+            if (html.indexOf('<base') === -1) {
+              html = html.replace(/<head([^>]*)>/i, '<head$1><base href="' + baseUrl + '">');
+            }
+          }
+          html = html.replace(/<\/head>/i, '<script>document.addEventListener("click",function(e){var a=e.target.closest("a[href]");if(!a)return;var h=a.getAttribute("href");if(!h||h.startsWith("javascript:")||h.startsWith("#")||h.startsWith("mailto:"))return;e.preventDefault();try{var u=new URL(h,location.href).href;}catch(er){return;}window.parent.postMessage({type:"kb-navigate",url:u},"*");});document.addEventListener("submit",function(e){var f=e.target;if(!f.action)return;e.preventDefault();var fd=new FormData(f);var params=[];fd.forEach(function(v,k){params.push(encodeURIComponent(k)+"="+encodeURIComponent(v));});var method=(f.method||"GET").toUpperCase();try{var a=new URL(f.action,location.href).href;}catch(er){return;}if(method==="GET"){window.parent.postMessage({type:"kb-navigate",url:a+"?"+params.join("&")},"*");}else{window.parent.postMessage({type:"kb-navigate",url:a},"*");}});<\/script></head>');
+        }
+        pageCache[url] = html;
+        kbFrame.srcdoc = html;
         kbLoading.style.display = 'none';
         if (histIdx === -1 || history[histIdx] !== url) {
           history = history.slice(0, histIdx + 1);
@@ -2272,7 +2250,8 @@ ieLog('Isolation Engine v3 ready', 'log');
         }
         updateNavButtons();
       })
-      .catch(function(err) {
+      .catch(function() {
+        clearTimeout(timer);
         if (proxyIdx < PROXIES.length - 1) {
           proxyIdx++;
           kbLoadingText.textContent = 'Trying ' + PROXIES[proxyIdx].name + '...';
@@ -2283,8 +2262,8 @@ ieLog('Isolation Engine v3 ready', 'log');
         kbLoading.style.display = 'none';
         kbError.style.display = 'flex';
         kbErrorTitle.textContent = 'Failed to load';
-        kbErrorMsg.textContent = err.message || 'All proxies failed. Try a different URL.';
-        kbFrame.srcdoc = '<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0b0b10;color:#9a9ab0;font-family:sans-serif"><div style="text-align:center"><h2 style="color:#ff2d2d">Could not load page</h2><p>' + (err.message || 'All proxies failed') + '</p></div></body></html>';
+        kbErrorMsg.textContent = 'All proxies failed. Start the proxy server or try another URL.';
+        kbFrame.srcdoc = '<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0b0b10;color:#9a9ab0;font-family:sans-serif;text-align:center"><div><h2 style="color:#ff2d2d">Could not load page</h2><p>Start the proxy server:<br><code style="color:#35c25f">Start Proxy.bat</code></p><p style="margin-top:10px;font-size:12px">Or try CORSProxy (slower)</p></div></body></html>';
       });
   }
 
@@ -2351,6 +2330,15 @@ ieLog('Isolation Engine v3 ready', 'log');
   });
 
   updateNavButtons();
+
+  fetch(LOCAL_PROXY + '/status', { mode: 'cors', signal: AbortSignal.timeout(2000) })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok) { proxyIdx = 0; kbProxyBadge.textContent = 'Local \u2713'; kbProxyBadge.style.color = '#35c25f'; }
+    })
+    .catch(function() {
+      proxyIdx = 1; kbProxyBadge.textContent = 'CORSProxy'; kbProxyBadge.style.color = '';
+    });
 })();
 </script>
 </body>
