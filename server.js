@@ -41,13 +41,19 @@ const server = http.createServer((req, res) => {
 
     const proxyReq = transport.request(options, (proxyRes) => {
       const contentType = proxyRes.headers['content-type'] || '';
-      const isHtml = contentType.includes('text/html') || contentType.includes('application/xhtml');
+      const isHtml = contentType.includes('text/html') || contentType.includes('application/xhtml') || contentType.includes('text/plain');
 
       if (isHtml) {
         let body = [];
         proxyRes.on('data', (chunk) => body.push(chunk));
         proxyRes.on('end', () => {
           let html = Buffer.concat(body).toString('utf8');
+          const looksLikeHtml = /<(!doctype|html|head|body|script)/i.test(html);
+          if (!looksLikeHtml && !contentType.includes('text/html')) {
+            res.writeHead(proxyRes.statusCode, { 'Content-Type': contentType || 'application/octet-stream' });
+            res.end(html);
+            return;
+          }
           const baseHref = parsed.origin + parsed.pathname.substring(0, parsed.pathname.lastIndexOf('/') + 1);
 
           if (!html.includes('<base')) {
