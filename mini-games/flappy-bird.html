@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flappy Bird - Kaid Gaming</title>
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #1a1a2e;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .game-container {
+    text-align: center;
+  }
+  canvas {
+    border: 3px solid #4ecca3;
+    border-radius: 8px;
+    background: #87CEEB;
+  }
+  .score {
+    color: #4ecca3;
+    font-size: 24px;
+    margin: 10px 0;
+  }
+  .controls {
+    color: #eee;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="score">Score: <span id="score">0</span></div>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <div class="controls">Click or Press Space to Flap</div>
+</div>
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  
+  const GRAVITY = 0.5;
+  const FLAP_STRENGTH = -8;
+  const PIPE_SPEED = 3;
+  const PIPE_GAP = 150;
+  const PIPE_WIDTH = 60;
+  
+  let bird = { x: 80, y: 300, velocity: 0 };
+  let pipes = [];
+  let score = 0;
+  let gameRunning = true;
+  let gameLoop;
+  
+  function flap() {
+    if (gameRunning) bird.velocity = FLAP_STRENGTH;
+  }
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ') flap();
+  });
+  canvas.addEventListener('click', flap);
+  
+  function spawnPipe() {
+    const minHeight = 50;
+    const maxHeight = canvas.height - PIPE_GAP - minHeight;
+    const height = Math.random() * (maxHeight - minHeight) + minHeight;
+    pipes.push({
+      x: canvas.width,
+      topHeight: height,
+      passed: false
+    });
+  }
+  
+  function update() {
+    bird.velocity += GRAVITY;
+    bird.y += bird.velocity;
+    
+    if (bird.y < 0 || bird.y > canvas.height) {
+      gameOver();
+      return;
+    }
+    
+    pipes.forEach((pipe, index) => {
+      pipe.x -= PIPE_SPEED;
+      
+      if (!pipe.passed && pipe.x + PIPE_WIDTH < bird.x) {
+        pipe.passed = true;
+        score++;
+        scoreEl.textContent = score;
+      }
+      
+      if (bird.x + 30 > pipe.x && bird.x < pipe.x + PIPE_WIDTH) {
+        if (bird.y < pipe.topHeight || bird.y + 30 > pipe.topHeight + PIPE_GAP) {
+          gameOver();
+        }
+      }
+      
+      if (pipe.x + PIPE_WIDTH < 0) {
+        pipes.splice(index, 1);
+      }
+    });
+    
+    if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 200) {
+      spawnPipe();
+    }
+  }
+  
+  function draw() {
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#4ecca3';
+    ctx.fillRect(bird.x, bird.y, 30, 30);
+    
+    pipes.forEach(pipe => {
+      ctx.fillStyle = '#228B22';
+      ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.topHeight);
+      ctx.fillRect(pipe.x, pipe.topHeight + PIPE_GAP, PIPE_WIDTH, canvas.height - pipe.topHeight - PIPE_GAP);
+    });
+  }
+  
+  function gameOver() {
+    gameRunning = false;
+    clearInterval(gameLoop);
+    alert('Game Over! Score: ' + score);
+    reset();
+  }
+  
+  function reset() {
+    bird = { x: 80, y: 300, velocity: 0 };
+    pipes = [];
+    score = 0;
+    scoreEl.textContent = score;
+    gameRunning = true;
+    gameLoop = setInterval(() => {
+      update();
+      draw();
+    }, 20);
+  }
+  
+  spawnPipe();
+  gameLoop = setInterval(() => {
+    update();
+    draw();
+  }, 20);
+</script>
+</body>
+</html>

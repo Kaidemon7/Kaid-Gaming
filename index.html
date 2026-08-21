@@ -1,0 +1,1591 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>Kaid Gaming</title>
+<meta name="theme-color" content="#0b0b10">
+<style>* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #0b0b10;
+    --bg-2: #12121a;
+    --panel: #171722;
+    --panel-2: #1e1e2c;
+    --border: #2a2a3d;
+    --accent: #ff2d2d;
+    --accent-2: #ff5555;
+    --text: #e8e8f0;
+    --muted: #9a9ab0;
+    --ok: #35c25f;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Auth screen ---------- */
+#auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -10%, #2a0a0a 0%, var(--bg) 60%);
+}
+
+.auth-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    width: 340px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .6);
+}
+
+.auth-card img.logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 12px;
+}
+
+.auth-card h1 {
+    font-size: 28px;
+    letter-spacing: 2px;
+    margin: 12px 0 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+}
+
+.auth-card p.sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+}
+
+.auth-card input:focus { border-color: var(--accent); }
+
+.btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.btn:hover { background: var(--accent-2); }
+.btn.small { padding: 6px 12px; font-size: 13px; }
+.btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.auth-card .btn { width: 100%; margin-top: 6px; }
+.auth-err { color: var(--accent); font-size: 13px; min-height: 18px; margin-top: 10px; }
+
+/* ---------- App layout ---------- */
+#app { display: flex; flex-direction: column; min-height: 100vh; }
+
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(11, 11, 16, .92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 12px;
+}
+
+nav .brand img { width: 34px; height: 34px; border-radius: 8px; }
+nav .brand span {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--accent);
+    text-transform: uppercase;
+}
+
+nav .tab {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+nav .tab:hover { color: var(--text); background: var(--panel-2); }
+nav .tab.active { color: #fff; background: var(--accent); }
+nav .tab#install-btn { color: var(--ok); border: 1px solid var(--border); }
+nav .tab#install-btn:hover { border-color: var(--ok); background: var(--panel); }
+
+nav .spacer { flex: 1; }
+
+nav .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 8px 5px 14px;
+}
+
+nav .user-chip .name { font-size: 13px; color: var(--text); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+main { flex: 1; padding: 26px 20px 60px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+.tab-view { display: none; }
+.tab-view.active { display: block; }
+
+/* ---------- Home ---------- */
+.hero {
+    background: linear-gradient(135deg, #1a0a0a, var(--panel) 55%, #101022);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 26px;
+}
+
+.hero h2 { font-size: 34px; letter-spacing: 1px; color: #fff; }
+.hero h2 span { color: var(--accent); }
+.hero p { color: var(--muted); margin: 10px auto 22px; max-width: 520px; }
+
+.hero .btn { margin: 0 6px; }
+
+section h3.section-title {
+    font-size: 20px;
+    margin: 30px 0 14px;
+    color: var(--text);
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+}
+
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.swatches .sw {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: transform .1s;
+}
+
+.swatches .sw:hover { transform: scale(1.1); }
+
+/* ---------- Games grid ---------- */
+#game-search {
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+}
+
+#game-search:focus { border-color: var(--accent); }
+
+.no-results {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+
+.card .thumb {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+
+.card .body { padding: 14px 16px 16px; }
+
+.card .body h4 { font-size: 17px; margin-bottom: 3px; }
+.card .body .tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.card .body p { color: var(--muted); font-size: 13px; line-height: 1.45; margin-top: 8px; }
+
+/* ---------- AI / Chat panels ---------- */
+.chat-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 160px);
+    min-height: 420px;
+    overflow: hidden;
+}
+
+.chat-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.chat-head h3 { font-size: 17px; }
+.chat-head .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); }
+.chat-head select {
+    margin-left: auto;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.chat-msgs {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.msg {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.msg.user {
+    align-self: flex-end;
+    background: var(--accent);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+.msg.ai {
+    align-self: flex-start;
+    background: var(--panel-2);
+    border-bottom-left-radius: 4px;
+}
+
+.msg.error { align-self: center; background: #3a1515; color: #ff8f8f; font-size: 13px; }
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+}
+
+.chat-input textarea {
+    flex: 1;
+    resize: none;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    min-height: 42px;
+    max-height: 140px;
+}
+
+.chat-input textarea:focus { border-color: var(--accent); }
+
+.typing { color: var(--muted); font-size: 13px; padding: 4px 6px; }
+
+/* ---------- VM ---------- */
+.vm-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.vm-head h3 { font-size: 17px; margin-right: 8px; }
+.vm-head select {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 7px 10px;
+    font-size: 13px;
+}
+
+.vm-note { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+
+#vm-screen {
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    height: 560px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+#vm-screen canvas { display: block; max-width: 100%; max-height: 100%; image-rendering: pixelated; }
+#vm-screen > div {
+    white-space: pre;
+    font-family: Consolas, Menlo, monospace;
+    font-size: 12px;
+    line-height: 16px;
+    color: #fff;
+    background: #000;
+}
+
+.vm-hint {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #fff;
+    font-size: 12px;
+    background: rgba(0, 0, 0, .55);
+    padding: 6px;
+    pointer-events: none;
+}
+
+/* ---------- Game box (modal) ---------- */
+#game-box {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, .82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#game-box .box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: min(1500px, 96vw);
+    height: min(900px, 94vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .7);
+    position: relative;
+}
+
+#game-box .box-hint {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* Resize handles - drag any edge or corner to resize the game window */
+#game-box .rh {
+    position: absolute;
+    z-index: 6;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity .15s;
+}
+
+#game-box:hover .rh { opacity: .15; }
+#game-box .rh:hover { opacity: .6; }
+
+#game-box .rh-n { top: 0; left: 10px; right: 10px; height: 8px; cursor: ns-resize; }
+#game-box .rh-s { bottom: 0; left: 10px; right: 10px; height: 8px; cursor: ns-resize; }
+#game-box .rh-w { top: 10px; bottom: 10px; left: 0; width: 8px; cursor: ew-resize; }
+#game-box .rh-e { top: 10px; bottom: 10px; right: 0; width: 8px; cursor: ew-resize; }
+
+#game-box .rh-nw { top: 0; left: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+#game-box .rh-ne { top: 0; right: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+#game-box .rh-sw { bottom: 0; left: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+#game-box .rh-se { bottom: 0; right: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+
+body.resizing { user-select: none; }
+
+#game-box .box-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-2);
+}
+
+#game-box .box-head h3 { font-size: 16px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+#game-box iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #000;
+}
+
+/* ---------- Toast ---------- */
+#kaid-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+}
+
+/* ---------- Music empty state ---------- */
+.empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 80px 20px;
+    background: var(--panel);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+}
+
+.empty-state h3 { color: var(--text); margin-bottom: 8px; }
+
+footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+    main { padding: 16px 12px 40px; }
+    .hero { padding: 26px 18px; }
+    .hero h2 { font-size: 26px; }
+    .chat-panel { height: calc(100vh - 200px); }
+    #game-box { padding: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-card">
+    <h1>Kaid Gaming</h1>
+    <p class="sub">Log in to play games, chat and use AI</p>
+    <input id="username" type="text" placeholder="Username" autocomplete="off">
+    <input id="password" type="password" placeholder="Password">
+    <button class="btn" id="login-btn">Enter</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <nav>
+    <div class="brand"><span>Kaid Gaming</span></div>
+    <button class="tab active" data-tab="home">Home</button>
+    <button class="tab" data-tab="games">Games</button>
+    <button class="tab" data-tab="music">Music</button>
+    <button class="tab" data-tab="sounds">Sounds</button>
+    <button class="tab" data-tab="hacks">Hacks</button>
+    <button class="tab" data-tab="ai">AI</button>
+    <div class="spacer"></div>
+    <div class="user-chip">
+      <span class="name" id="user-name"></span>
+      <button class="btn small ghost" id="logout-btn">Log out</button>
+    </div>
+  </nav>
+  <main>
+    <section class="tab-view active" id="tab-home">
+      <div class="hero">
+        <h2>Welcome to <span>Kaid Gaming</span></h2>
+        <p>Your one-stop portal: 500+ browser games, soundboard, AI assistant and Chromebook hacks.</p>
+        <button class="btn" id="home-games-btn">Browse Games</button>
+        <button class="btn ghost" id="home-ai-btn">Talk to AI</button>
+      </div>
+    </section>
+    <section class="tab-view" id="tab-games">
+      <h3 class="section-title">Games</h3>
+      <input id="game-search" type="search" placeholder="Search games..." autocomplete="off">
+      <div class="grid" id="games-grid"></div>
+    </section>
+    <section class="tab-view" id="tab-music">
+      <h3 class="section-title">Soundboard</h3>
+      <input id="music-search" type="search" placeholder="Search sounds..." autocomplete="off">
+      <div id="music-bar" style="position:fixed;bottom:0;left:0;right:0;background:rgba(11,11,16,.95);border-top:1px solid #2a2a3d;padding:10px 20px;display:none;z-index:200;align-items:center;gap:12px;">
+        <span id="music-now" style="color:#9a9ab0;font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">-</span>
+        <button class="btn small ghost" id="music-prev">&#9664;</button>
+        <button class="btn small" id="music-toggle">&#9654;</button>
+        <button class="btn small ghost" id="music-next">&#9654;&#9654;</button>
+        <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.7" style="width:80px;">
+      </div>
+      <div class="grid" id="music-grid"></div>
+    </section>
+    <section class="tab-view" id="tab-sounds">
+      <h3 class="section-title">Soundboard</h3>
+      <input id="sounds-search" type="search" placeholder="Search sounds..." autocomplete="off">
+      <div class="grid" id="sounds-grid"></div>
+    </section>
+    <section class="tab-view" id="tab-hacks">
+      <h3 class="section-title">Chromebook Hacks</h3>
+      <div class="grid" id="hacks-grid"></div>
+    </section>
+    <section class="tab-view" id="tab-ai">
+      <div class="chat-panel">
+        <div class="chat-head">
+          <span class="dot"></span>
+          <h3>Kaid AI</h3>
+          <select id="ai-model"></select>
+        </div>
+        <div class="chat-msgs" id="ai-msgs">
+          <div class="msg ai">Hey! I'm Kaid AI. Ask me anything.</div>
+        </div>
+        <div class="chat-input">
+          <textarea id="ai-input" rows="1" placeholder="Message Kaid AI..."></textarea>
+          <button class="btn" id="ai-send">Send</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>Kaid Gaming &copy; 2026</footer>
+</div>
+
+<div id="game-box" class="hidden">
+  <div class="box">
+    <div class="box-head">
+      <h3 id="game-box-title"></h3>
+      <button class="btn small ghost" id="game-box-back">Back</button>
+      <button class="btn small ghost" id="game-box-newtab">Open in new tab</button>
+      <button class="btn small" id="game-box-close">Close</button>
+    </div>
+    <iframe id="game-frame" title="game"></iframe>
+    <div class="rh rh-n"></div><div class="rh rh-s"></div>
+    <div class="rh rh-w"></div><div class="rh rh-e"></div>
+    <div class="rh rh-nw"></div><div class="rh rh-ne"></div>
+    <div class="rh rh-sw"></div><div class="rh rh-se"></div>
+  </div>
+</div>
+
+<script>
+var BASE_URL = "https://kaidemon7.github.io/Kaid-Gaming/";
+
+var GAMES = [
+      { name: "Minecraft", tag: "Launcher", icon: "MC", color: "#4caf50", src: BASE_URL + "Games/minecraft/index.html" },
+      { name: "Rocket League 2D", tag: "Online 1v1", icon: "RL", color: "#ff6a00", src: BASE_URL + "Games/rocket-league-2d/index.html" },
+      { name: "FNAF Pack", tag: "8 Games", icon: "FN", color: "#b71c1c", src: BASE_URL + "Games/fnaf.html" },
+      { name: "Snake (Mini-Game)", tag: "Mini-Game", icon: "SN", color: "#e53935", src: BASE_URL + "mini-games/snake.html" },
+      { name: "Tetris (Mini-Game)", tag: "Mini-Game", icon: "TE", color: "#8e24aa", src: BASE_URL + "mini-games/tetris.html" },
+      { name: "Flappy Bird (Mini-Game)", tag: "Mini-Game", icon: "FL", color: "#1e88e5", src: BASE_URL + "mini-games/flappy-bird.html" },
+      { name: "Pong (Mini-Game)", tag: "Mini-Game", icon: "PO", color: "#43a047", src: BASE_URL + "mini-games/pong.html" },
+      { name: "2048 (Mini-Game)", tag: "Mini-Game", icon: "20", color: "#fb8c00", src: BASE_URL + "mini-games/2048.html" },
+      { name: "Tic-Tac-Toe (Mini-Game)", tag: "Mini-Game", icon: "TI", color: "#00acc1", src: BASE_URL + "mini-games/tic-tac-toe.html" },
+      { name: "1", tag: "Browser", icon: "1", color: "#5e35b1", src: BASE_URL + "Games/1/index.html" },
+      { name: "1.12", tag: "Browser", icon: "1.", color: "#d81b60", src: BASE_URL + "Games/1.12.html" },
+      { name: "1.5", tag: "Browser", icon: "1.", color: "#00897b", src: BASE_URL + "Games/1.5.html" },
+      { name: "1.8", tag: "Browser", icon: "1.", color: "#6d4c41", src: BASE_URL + "Games/1.8.html" },
+      { name: "10-minutes-till-dawn", tag: "Browser", icon: "10", color: "#546e7a", src: BASE_URL + "Games/10-minutes-till-dawn/index.html" },
+      { name: "100ng", tag: "Browser", icon: "10", color: "#fdd835", src: BASE_URL + "Games/100ng/index.html" },
+      { name: "10minutestilldawn", tag: "Browser", icon: "10", color: "#e53935", src: BASE_URL + "Games/10minutestilldawn.html" },
+      { name: "12minibattles", tag: "Browser", icon: "12", color: "#8e24aa", src: BASE_URL + "Games/12minibattles.html" },
+      { name: "1on1soccer", tag: "Browser", icon: "1O", color: "#1e88e5", src: BASE_URL + "Games/1on1soccer.html" },
+      { name: "1on1tennis", tag: "Browser", icon: "1O", color: "#43a047", src: BASE_URL + "Games/1on1tennis.html" },
+      { name: "1v1lol", tag: "Browser", icon: "1V", color: "#00acc1", src: BASE_URL + "Games/1v1lol/index.html" },
+      { name: "1v1space", tag: "Browser", icon: "1V", color: "#5e35b1", src: BASE_URL + "Games/1v1space/index.html" },
+      { name: "2020-game", tag: "Browser", icon: "20", color: "#d81b60", src: BASE_URL + "Games/2020-game/index.html" },
+      { name: "2048", tag: "Browser", icon: "20", color: "#00897b", src: BASE_URL + "Games/2048/index.html" },
+      { name: "2048-multitask", tag: "Browser", icon: "20", color: "#6d4c41", src: BASE_URL + "Games/2048-multitask/index.html" },
+      { name: "2048cupcakes", tag: "Browser", icon: "20", color: "#546e7a", src: BASE_URL + "Games/2048cupcakes.html" },
+      { name: "3Dflightsimulator", tag: "Browser", icon: "3D", color: "#fdd835", src: BASE_URL + "Games/3Dflightsimulator.html" },
+      { name: "8ball-billards-classic", tag: "Browser", icon: "8B", color: "#e53935", src: BASE_URL + "Games/8ball-billards-classic/index.html" },
+      { name: "8ballclassic", tag: "Browser", icon: "8B", color: "#8e24aa", src: BASE_URL + "Games/8ballclassic.html" },
+      { name: "9007199254740992", tag: "Browser", icon: "90", color: "#1e88e5", src: BASE_URL + "Games/9007199254740992/index.html" },
+      { name: "achievementunlocked", tag: "Browser", icon: "AC", color: "#43a047", src: BASE_URL + "Games/achievementunlocked/index.html" },
+      { name: "adarkroom", tag: "Browser", icon: "AD", color: "#fb8c00", src: BASE_URL + "Games/adarkroom/index.html" },
+      { name: "adrenalinechallenge", tag: "Browser", icon: "AD", color: "#00acc1", src: BASE_URL + "Games/adrenalinechallenge/index.html" },
+      { name: "agariolite", tag: "Browser", icon: "AG", color: "#5e35b1", src: BASE_URL + "Games/agariolite.html" },
+      { name: "age-of-war", tag: "Browser", icon: "AG", color: "#d81b60", src: BASE_URL + "Games/age-of-war/index.html" },
+      { name: "ageofwar", tag: "Browser", icon: "AG", color: "#00897b", src: BASE_URL + "Games/ageofwar.html" },
+      { name: "ageofwar2", tag: "Browser", icon: "AG", color: "#6d4c41", src: BASE_URL + "Games/ageofwar2.html" },
+      { name: "agesofconflict", tag: "Browser", icon: "AG", color: "#546e7a", src: BASE_URL + "Games/agesofconflict.html" },
+      { name: "alien-invaders-io", tag: "Browser", icon: "AL", color: "#fdd835", src: BASE_URL + "Games/alien-invaders-io/index.html" },
+      { name: "alienhominid", tag: "Browser", icon: "AL", color: "#e53935", src: BASE_URL + "Games/alienhominid/index.html" },
+      { name: "align-4", tag: "Browser", icon: "AL", color: "#8e24aa", src: BASE_URL + "Games/align-4/index.html" },
+      { name: "Alpha_1.2.6", tag: "Browser", icon: "AL", color: "#1e88e5", src: BASE_URL + "Games/Alpha_1.2.6.html" },
+      { name: "among-us", tag: "Browser", icon: "AM", color: "#43a047", src: BASE_URL + "Games/among-us/index.html" },
+      { name: "amongus", tag: "Browser", icon: "AM", color: "#fb8c00", src: BASE_URL + "Games/amongus.html" },
+      { name: "angry-birds", tag: "Browser", icon: "AN", color: "#00acc1", src: BASE_URL + "Games/angry-birds/index.html" },
+      { name: "angrybirds", tag: "Browser", icon: "AN", color: "#5e35b1", src: BASE_URL + "Games/angrybirds.html" },
+      { name: "angrybirdsshowdown", tag: "Browser", icon: "AN", color: "#d81b60", src: BASE_URL + "Games/angrybirdsshowdown.html" },
+      { name: "angrybirdsspace", tag: "Browser", icon: "AN", color: "#00897b", src: BASE_URL + "Games/angrybirdsspace.html" },
+      { name: "anti-terrorist-rush", tag: "Browser", icon: "AN", color: "#6d4c41", src: BASE_URL + "Games/anti-terrorist-rush/index.html" },
+      { name: "arcade-wizard", tag: "Browser", icon: "AR", color: "#546e7a", src: BASE_URL + "Games/arcade-wizard/index.html" },
+      { name: "asciispace", tag: "Browser", icon: "AS", color: "#fdd835", src: BASE_URL + "Games/asciispace/index.html" },
+      { name: "aspiring-artist", tag: "Browser", icon: "AS", color: "#e53935", src: BASE_URL + "Games/aspiring-artist/index.html" },
+      { name: "asteroids", tag: "Browser", icon: "AS", color: "#8e24aa", src: BASE_URL + "Games/asteroids/index.html" },
+      { name: "astray", tag: "Browser", icon: "AS", color: "#1e88e5", src: BASE_URL + "Games/astray/index.html" },
+      { name: "avalanche", tag: "Browser", icon: "AV", color: "#43a047", src: BASE_URL + "Games/avalanche/index.html" },
+      { name: "awesome-tanks-2", tag: "Browser", icon: "AW", color: "#fb8c00", src: BASE_URL + "Games/awesome-tanks-2/index.html" },
+      { name: "awesometanks", tag: "Browser", icon: "AW", color: "#00acc1", src: BASE_URL + "Games/awesometanks.html" },
+      { name: "awesometanks2", tag: "Browser", icon: "AW", color: "#5e35b1", src: BASE_URL + "Games/awesometanks2.html" },
+      { name: "backcountry", tag: "Browser", icon: "BA", color: "#d81b60", src: BASE_URL + "Games/backcountry/index.html" },
+      { name: "backflip-dive-3d", tag: "Browser", icon: "BA", color: "#00897b", src: BASE_URL + "Games/backflip-dive-3d/index.html" },
+      { name: "backrooms", tag: "Browser", icon: "BA", color: "#6d4c41", src: BASE_URL + "Games/backrooms/index.html" },
+      { name: "baconmaydie", tag: "Browser", icon: "BA", color: "#546e7a", src: BASE_URL + "Games/baconmaydie.html" },
+      { name: "bad-ice-cream", tag: "Browser", icon: "BA", color: "#fdd835", src: BASE_URL + "Games/bad-ice-cream/index.html" },
+      { name: "bad-ice-cream-2", tag: "Browser", icon: "BA", color: "#e53935", src: BASE_URL + "Games/bad-ice-cream-2/index.html" },
+      { name: "bad-ice-cream-3", tag: "Browser", icon: "BA", color: "#8e24aa", src: BASE_URL + "Games/bad-ice-cream-3/index.html" },
+      { name: "badicecream", tag: "Browser", icon: "BA", color: "#1e88e5", src: BASE_URL + "Games/badicecream.html" },
+      { name: "badicecream2", tag: "Browser", icon: "BA", color: "#43a047", src: BASE_URL + "Games/badicecream2.html" },
+      { name: "badicecream3", tag: "Browser", icon: "BA", color: "#fb8c00", src: BASE_URL + "Games/badicecream3.html" },
+      { name: "badpiggies", tag: "Browser", icon: "BA", color: "#5e35b1", src: BASE_URL + "Games/badpiggies.html" },
+      { name: "baldis-basics", tag: "Browser", icon: "BA", color: "#d81b60", src: BASE_URL + "Games/baldis-basics/index.html" },
+      { name: "baseballbros", tag: "Browser", icon: "BA", color: "#6d4c41", src: BASE_URL + "Games/baseballbros.html" },
+      { name: "basket-bros-io", tag: "Browser", icon: "BA", color: "#546e7a", src: BASE_URL + "Games/basket-bros-io/index.html" },
+      { name: "basketball-io", tag: "Browser", icon: "BA", color: "#fdd835", src: BASE_URL + "Games/basketball-io/index.html" },
+      { name: "basketball-legends-2020", tag: "Browser", icon: "BA", color: "#e53935", src: BASE_URL + "Games/basketball-legends-2020/index.html" },
+      { name: "basketball-stars", tag: "Browser", icon: "BA", color: "#8e24aa", src: BASE_URL + "Games/basketball-stars/index.html" },
+      { name: "basketballlegends", tag: "Browser", icon: "BA", color: "#1e88e5", src: BASE_URL + "Games/basketballlegends.html" },
+      { name: "basketballstars", tag: "Browser", icon: "BA", color: "#43a047", src: BASE_URL + "Games/basketballstars.html" },
+      { name: "basketbros", tag: "Browser", icon: "BA", color: "#fb8c00", src: BASE_URL + "Games/basketbros.html" },
+      { name: "basketrandom", tag: "Browser", icon: "BA", color: "#00acc1", src: BASE_URL + "Games/basketrandom.html" },
+      { name: "battleforgondor", tag: "Browser", icon: "BA", color: "#5e35b1", src: BASE_URL + "Games/battleforgondor/index.html" },
+      { name: "Beta_1.3", tag: "Browser", icon: "BE", color: "#d81b60", src: BASE_URL + "Games/Beta_1.3.html" },
+      { name: "bigredbutton", tag: "Browser", icon: "BI", color: "#00897b", src: BASE_URL + "Games/bigredbutton/index.html" },
+      { name: "binding-of-isaac", tag: "Browser", icon: "BI", color: "#6d4c41", src: BASE_URL + "Games/binding-of-isaac/index.html" },
+      { name: "bitlife", tag: "Browser", icon: "BI", color: "#546e7a", src: BASE_URL + "Games/bitlife/index.html" },
+      { name: "blacholesquare", tag: "Browser", icon: "BL", color: "#fdd835", src: BASE_URL + "Games/blacholesquare/index.html" },
+      { name: "blackholesquare", tag: "Browser", icon: "BL", color: "#e53935", src: BASE_URL + "Games/blackholesquare/index.html" },
+      { name: "blackknight", tag: "Browser", icon: "BL", color: "#8e24aa", src: BASE_URL + "Games/blackknight/index.html" },
+      { name: "blocky-snakes", tag: "Browser", icon: "BL", color: "#1e88e5", src: BASE_URL + "Games/blocky-snakes/index.html" },
+      { name: "blockysnakes", tag: "Browser", icon: "BL", color: "#43a047", src: BASE_URL + "Games/blockysnakes.html" },
+      { name: "bloonstd", tag: "Browser", icon: "BL", color: "#fb8c00", src: BASE_URL + "Games/bloonstd/index.html" },
+      { name: "bloonstd2", tag: "Browser", icon: "BL", color: "#00acc1", src: BASE_URL + "Games/bloonstd2/index.html" },
+      { name: "bloonsTD3", tag: "Browser", icon: "BL", color: "#5e35b1", src: BASE_URL + "Games/bloonsTD3.html" },
+      { name: "bloonsTD4", tag: "Browser", icon: "BL", color: "#d81b60", src: BASE_URL + "Games/bloonsTD4.html" },
+      { name: "bloxors", tag: "Browser", icon: "BL", color: "#6d4c41", src: BASE_URL + "Games/bloxors/index.html" },
+      { name: "bloxorz", tag: "Browser", icon: "BL", color: "#546e7a", src: BASE_URL + "Games/bloxorz.html" },
+      { name: "blumgiracers", tag: "Browser", icon: "BL", color: "#fdd835", src: BASE_URL + "Games/blumgiracers.html" },
+      { name: "blumgirocket", tag: "Browser", icon: "BL", color: "#e53935", src: BASE_URL + "Games/blumgirocket.html" },
+      { name: "bobtherobber", tag: "Browser", icon: "BO", color: "#8e24aa", src: BASE_URL + "Games/bobtherobber.html" },
+      { name: "bobtherobber2", tag: "Browser", icon: "BO", color: "#1e88e5", src: BASE_URL + "Games/bobtherobber2.html" },
+      { name: "bobtherobber5", tag: "Browser", icon: "BO", color: "#43a047", src: BASE_URL + "Games/bobtherobber5.html" },
+      { name: "bounceback", tag: "Browser", icon: "BO", color: "#fb8c00", src: BASE_URL + "Games/bounceback/index.html" },
+      { name: "bowmasters", tag: "Browser", icon: "BO", color: "#5e35b1", src: BASE_URL + "Games/bowmasters.html" },
+      { name: "boxel-rebound", tag: "Browser", icon: "BO", color: "#d81b60", src: BASE_URL + "Games/boxel-rebound/index.html" },
+      { name: "boxhead2play", tag: "Browser", icon: "BO", color: "#00897b", src: BASE_URL + "Games/boxhead2play/index.html" },
+      { name: "brave-explorers", tag: "Browser", icon: "BR", color: "#6d4c41", src: BASE_URL + "Games/brave-explorers/index.html" },
+      { name: "breakingthebank", tag: "Browser", icon: "BR", color: "#546e7a", src: BASE_URL + "Games/breakingthebank/index.html" },
+      { name: "breaklock", tag: "Browser", icon: "BR", color: "#fdd835", src: BASE_URL + "Games/breaklock/index.html" },
+      { name: "breakout", tag: "Browser", icon: "BR", color: "#e53935", src: BASE_URL + "Games/breakout/index.html" },
+      { name: "brick-breaker", tag: "Browser", icon: "BR", color: "#8e24aa", src: BASE_URL + "Games/brick-breaker.html" },
+      { name: "btd4", tag: "Browser", icon: "BT", color: "#1e88e5", src: BASE_URL + "Games/btd4/index.html" },
+      { name: "btts", tag: "Browser", icon: "BT", color: "#43a047", src: BASE_URL + "Games/btts/index.html" },
+      { name: "bubbleshooter", tag: "Browser", icon: "BU", color: "#fb8c00", src: BASE_URL + "Games/bubbleshooter.html" },
+      { name: "burning-man-2", tag: "Browser", icon: "BU", color: "#00acc1", src: BASE_URL + "Games/burning-man-2/index.html" },
+      { name: "candycrush", tag: "Browser", icon: "CA", color: "#5e35b1", src: BASE_URL + "Games/candycrush.html" },
+      { name: "cannon-basketball-4", tag: "Browser", icon: "CA", color: "#d81b60", src: BASE_URL + "Games/cannon-basketball-4/index.html" },
+      { name: "canyondefense", tag: "Browser", icon: "CA", color: "#00897b", src: BASE_URL + "Games/canyondefense/index.html" },
+      { name: "captaincallisto", tag: "Browser", icon: "CA", color: "#6d4c41", src: BASE_URL + "Games/captaincallisto/index.html" },
+      { name: "capybaraclicker", tag: "Browser", icon: "CA", color: "#546e7a", src: BASE_URL + "Games/capybaraclicker.html" },
+      { name: "cardrawing", tag: "Browser", icon: "CA", color: "#fdd835", src: BASE_URL + "Games/cardrawing.html" },
+      { name: "carkingarena", tag: "Browser", icon: "CA", color: "#e53935", src: BASE_URL + "Games/carkingarena.html" },
+      { name: "cars-simulator", tag: "Browser", icon: "CA", color: "#8e24aa", src: BASE_URL + "Games/cars-simulator/index.html" },
+      { name: "cell-machine", tag: "Browser", icon: "CE", color: "#1e88e5", src: BASE_URL + "Games/cell-machine/index.html" },
+      { name: "championarcher", tag: "Browser", icon: "CH", color: "#43a047", src: BASE_URL + "Games/championarcher/index.html" },
+      { name: "chess", tag: "Browser", icon: "CH", color: "#fb8c00", src: BASE_URL + "Games/chess/index.html" },
+      { name: "chill-radio", tag: "Browser", icon: "CH", color: "#00acc1", src: BASE_URL + "Games/chill-radio/index.html" },
+      { name: "choppyorc", tag: "Browser", icon: "CH", color: "#5e35b1", src: BASE_URL + "Games/choppyorc.html" },
+      { name: "chromaincident", tag: "Browser", icon: "CH", color: "#d81b60", src: BASE_URL + "Games/chromaincident/index.html" },
+      { name: "chrome-dino", tag: "Browser", icon: "CH", color: "#00897b", src: BASE_URL + "Games/chrome-dino/index.html" },
+      { name: "chromedino", tag: "Browser", icon: "CH", color: "#6d4c41", src: BASE_URL + "Games/chromedino/index.html" },
+      { name: "circlo", tag: "Browser", icon: "CI", color: "#546e7a", src: BASE_URL + "Games/circlo/index.html" },
+      { name: "circloO", tag: "Browser", icon: "CI", color: "#fdd835", src: BASE_URL + "Games/circloO.html" },
+      { name: "circloO2", tag: "Browser", icon: "CI", color: "#e53935", src: BASE_URL + "Games/circloO2.html" },
+      { name: "city-blocks-2", tag: "Browser", icon: "CI", color: "#8e24aa", src: BASE_URL + "Games/city-blocks-2/index.html" },
+      { name: "clashofvikings", tag: "Browser", icon: "CL", color: "#1e88e5", src: BASE_URL + "Games/clashofvikings.html" },
+      { name: "clean-up-io", tag: "Browser", icon: "CL", color: "#43a047", src: BASE_URL + "Games/clean-up-io/index.html" },
+      { name: "cleanupio", tag: "Browser", icon: "CL", color: "#fb8c00", src: BASE_URL + "Games/cleanupio.html" },
+      { name: "cluster-rush", tag: "Browser", icon: "CL", color: "#00acc1", src: BASE_URL + "Games/cluster-rush/index.html" },
+      { name: "clusterrush", tag: "Browser", icon: "CL", color: "#5e35b1", src: BASE_URL + "Games/clusterrush.html" },
+      { name: "color-switch-2-challenges", tag: "Browser", icon: "CO", color: "#d81b60", src: BASE_URL + "Games/color-switch-2-challenges/index.html" },
+      { name: "Connect the Pipes", tag: "Browser", icon: "CO", color: "#00897b", src: BASE_URL + "Games/Connect the Pipes.html" },
+      { name: "connect3", tag: "Browser", icon: "CO", color: "#6d4c41", src: BASE_URL + "Games/connect3/index.html" },
+      { name: "cookie-clicker", tag: "Browser", icon: "CO", color: "#546e7a", src: BASE_URL + "Games/cookie-clicker/index.html" },
+      { name: "cookieclicker", tag: "Browser", icon: "CO", color: "#fdd835", src: BASE_URL + "Games/cookieclicker/index.html" },
+      { name: "core-ball", tag: "Browser", icon: "CO", color: "#e53935", src: BASE_URL + "Games/core-ball/index.html" },
+      { name: "craftmine", tag: "Browser", icon: "CR", color: "#8e24aa", src: BASE_URL + "Games/craftmine/index.html" },
+      { name: "crazycars", tag: "Browser", icon: "CR", color: "#1e88e5", src: BASE_URL + "Games/crazycars.html" },
+      { name: "crazycattle3D", tag: "Browser", icon: "CR", color: "#43a047", src: BASE_URL + "Games/crazycattle3D.html" },
+      { name: "crazycrashlanding", tag: "Browser", icon: "CR", color: "#fb8c00", src: BASE_URL + "Games/crazycrashlanding.html" },
+      { name: "crazymotorcycle", tag: "Browser", icon: "CR", color: "#00acc1", src: BASE_URL + "Games/crazymotorcycle.html" },
+      { name: "creativekillchamber", tag: "Browser", icon: "CR", color: "#5e35b1", src: BASE_URL + "Games/creativekillchamber/index.html" },
+      { name: "crossyroad", tag: "Browser", icon: "CR", color: "#d81b60", src: BASE_URL + "Games/crossyroad/index.html" },
+      { name: "crowd city 2", tag: "Browser", icon: "CR", color: "#00897b", src: BASE_URL + "Games/crowd city 2/index.html" },
+      { name: "csgo-clicker", tag: "Browser", icon: "CS", color: "#6d4c41", src: BASE_URL + "Games/csgo-clicker/index.html" },
+      { name: "ctr", tag: "Browser", icon: "CT", color: "#546e7a", src: BASE_URL + "Games/ctr/index.html" },
+      { name: "ctr-holiday", tag: "Browser", icon: "CT", color: "#fdd835", src: BASE_URL + "Games/ctr-holiday/index.html" },
+      { name: "ctr-tr", tag: "Browser", icon: "CT", color: "#e53935", src: BASE_URL + "Games/ctr-tr/index.html" },
+      { name: "cubefield", tag: "Browser", icon: "CU", color: "#8e24aa", src: BASE_URL + "Games/cubefield/index.html" },
+      { name: "cupcake2048", tag: "Browser", icon: "CU", color: "#1e88e5", src: BASE_URL + "Games/cupcake2048/index.html" },
+      { name: "cuttherope", tag: "Browser", icon: "CU", color: "#43a047", src: BASE_URL + "Games/cuttherope/index.html" },
+      { name: "cuttherope2", tag: "Browser", icon: "CU", color: "#fb8c00", src: BASE_URL + "Games/cuttherope2/index.html" },
+      { name: "dadish", tag: "Browser", icon: "DA", color: "#00acc1", src: BASE_URL + "Games/dadish/index.html" },
+      { name: "dadish2", tag: "Browser", icon: "DA", color: "#5e35b1", src: BASE_URL + "Games/dadish2.html" },
+      { name: "dadish3", tag: "Browser", icon: "DA", color: "#d81b60", src: BASE_URL + "Games/dadish3/index.html" },
+      { name: "dadishtwo", tag: "Browser", icon: "DA", color: "#00897b", src: BASE_URL + "Games/dadishtwo/index.html" },
+      { name: "dante", tag: "Browser", icon: "DA", color: "#6d4c41", src: BASE_URL + "Games/dante/index.html" },
+      { name: "deal-or-no-deal", tag: "Browser", icon: "DE", color: "#546e7a", src: BASE_URL + "Games/deal-or-no-deal/index.html" },
+      { name: "death-run-3d", tag: "Browser", icon: "DE", color: "#fdd835", src: BASE_URL + "Games/death-run-3d/index.html" },
+      { name: "death-soul", tag: "Browser", icon: "DE", color: "#e53935", src: BASE_URL + "Games/death-soul/index.html" },
+      { name: "deathchase", tag: "Browser", icon: "DE", color: "#8e24aa", src: BASE_URL + "Games/deathchase.html" },
+      { name: "deathrun", tag: "Browser", icon: "DE", color: "#1e88e5", src: BASE_URL + "Games/deathrun/index.html" },
+      { name: "deathrun3D", tag: "Browser", icon: "DE", color: "#43a047", src: BASE_URL + "Games/deathrun3D.html" },
+      { name: "defend-the-tank", tag: "Browser", icon: "DE", color: "#fb8c00", src: BASE_URL + "Games/defend-the-tank/index.html" },
+      { name: "demolitionderbycrashracing", tag: "Browser", icon: "DE", color: "#00acc1", src: BASE_URL + "Games/demolitionderbycrashracing.html" },
+      { name: "dino", tag: "Browser", icon: "DI", color: "#5e35b1", src: BASE_URL + "Games/dino/index.html" },
+      { name: "doctor-acorn2", tag: "Browser", icon: "DO", color: "#d81b60", src: BASE_URL + "Games/doctor-acorn2/index.html" },
+      { name: "dodge", tag: "Browser", icon: "DO", color: "#00897b", src: BASE_URL + "Games/dodge/index.html" },
+      { name: "doge-miner-2", tag: "Browser", icon: "DO", color: "#6d4c41", src: BASE_URL + "Games/doge-miner-2/index.html" },
+      { name: "doge-mining-simulator", tag: "Browser", icon: "DO", color: "#546e7a", src: BASE_URL + "Games/doge-mining-simulator/index.html" },
+      { name: "doge2048", tag: "Browser", icon: "DO", color: "#fdd835", src: BASE_URL + "Games/doge2048/index.html" },
+      { name: "DogeMiner", tag: "Browser", icon: "DO", color: "#e53935", src: BASE_URL + "Games/DogeMiner/index.html" },
+      { name: "doodle-jump", tag: "Browser", icon: "DO", color: "#8e24aa", src: BASE_URL + "Games/doodle-jump/index.html" },
+      { name: "doodlejump", tag: "Browser", icon: "DO", color: "#1e88e5", src: BASE_URL + "Games/doodlejump.html" },
+      { name: "doublewires", tag: "Browser", icon: "DO", color: "#43a047", src: BASE_URL + "Games/doublewires/index.html" },
+      { name: "douchebag-workout-2", tag: "Browser", icon: "DO", color: "#fb8c00", src: BASE_URL + "Games/douchebag-workout-2/index.html" },
+      { name: "dragon-vs-bricks", tag: "Browser", icon: "DR", color: "#00acc1", src: BASE_URL + "Games/dragon-vs-bricks/index.html" },
+      { name: "draw-the-hill", tag: "Browser", icon: "DR", color: "#5e35b1", src: BASE_URL + "Games/draw-the-hill/index.html" },
+      { name: "drawclimber", tag: "Browser", icon: "DR", color: "#d81b60", src: BASE_URL + "Games/drawclimber.html" },
+      { name: "drive-mad", tag: "Browser", icon: "DR", color: "#00897b", src: BASE_URL + "Games/drive-mad/index.html" },
+      { name: "duck-life-treasurehunt", tag: "Browser", icon: "DU", color: "#6d4c41", src: BASE_URL + "Games/duck-life-treasurehunt/index.html" },
+      { name: "ducklife", tag: "Browser", icon: "DU", color: "#546e7a", src: BASE_URL + "Games/ducklife/index.html" },
+      { name: "ducklife1", tag: "Browser", icon: "DU", color: "#fdd835", src: BASE_URL + "Games/ducklife1/index.html" },
+      { name: "ducklife2", tag: "Browser", icon: "DU", color: "#e53935", src: BASE_URL + "Games/ducklife2/index.html" },
+      { name: "ducklife3", tag: "Browser", icon: "DU", color: "#8e24aa", src: BASE_URL + "Games/ducklife3/index.html" },
+      { name: "ducklife4", tag: "Browser", icon: "DU", color: "#1e88e5", src: BASE_URL + "Games/ducklife4/index.html" },
+      { name: "ducklife5", tag: "Browser", icon: "DU", color: "#43a047", src: BASE_URL + "Games/ducklife5.html" },
+      { name: "ducklingsio", tag: "Browser", icon: "DU", color: "#fb8c00", src: BASE_URL + "Games/ducklingsio.html" },
+      { name: "duke-dashington-remastered", tag: "Browser", icon: "DU", color: "#00acc1", src: BASE_URL + "Games/duke-dashington-remastered/index.html" },
+      { name: "dungeon-craft", tag: "Browser", icon: "DU", color: "#5e35b1", src: BASE_URL + "Games/dungeon-craft/index.html" },
+      { name: "eagleride", tag: "Browser", icon: "EA", color: "#d81b60", src: BASE_URL + "Games/eagleride.html" },
+      { name: "earntodie", tag: "Browser", icon: "EA", color: "#00897b", src: BASE_URL + "Games/earntodie.html" },
+      { name: "earntodie2", tag: "Browser", icon: "EA", color: "#6d4c41", src: BASE_URL + "Games/earntodie2.html" },
+      { name: "edge-surf", tag: "Browser", icon: "ED", color: "#546e7a", src: BASE_URL + "Games/edge-surf/index.html" },
+      { name: "edgenotfound", tag: "Browser", icon: "ED", color: "#fdd835", src: BASE_URL + "Games/edgenotfound/index.html" },
+      { name: "eggycar", tag: "Browser", icon: "EG", color: "#e53935", src: BASE_URL + "Games/eggycar.html" },
+      { name: "elastic-face", tag: "Browser", icon: "EL", color: "#8e24aa", src: BASE_URL + "Games/elastic-face/index.html" },
+      { name: "elasticman", tag: "Browser", icon: "EL", color: "#1e88e5", src: BASE_URL + "Games/elasticman/index.html" },
+      { name: "emulator-js", tag: "Browser", icon: "EM", color: "#43a047", src: BASE_URL + "Games/emulator-js/index.html" },
+      { name: "endlesswar3", tag: "Browser", icon: "EN", color: "#fb8c00", src: BASE_URL + "Games/endlesswar3/index.html" },
+      { name: "Epstien Clicker", tag: "Browser", icon: "EP", color: "#00acc1", src: BASE_URL + "Games/Epstien Clicker/index.html" },
+      { name: "escaperoad", tag: "Browser", icon: "ES", color: "#5e35b1", src: BASE_URL + "Games/escaperoad.html" },
+      { name: "escaperoad2", tag: "Browser", icon: "ES", color: "#d81b60", src: BASE_URL + "Games/escaperoad2.html" },
+      { name: "escapingtheprison", tag: "Browser", icon: "ES", color: "#00897b", src: BASE_URL + "Games/escapingtheprison/index.html" },
+      { name: "evil-glitch", tag: "Browser", icon: "EV", color: "#6d4c41", src: BASE_URL + "Games/evil-glitch/index.html" },
+      { name: "evilglitch", tag: "Browser", icon: "EV", color: "#546e7a", src: BASE_URL + "Games/evilglitch/index.html" },
+      { name: "evolution", tag: "Browser", icon: "EV", color: "#fdd835", src: BASE_URL + "Games/evolution/index.html" },
+      { name: "exo", tag: "Browser", icon: "EX", color: "#e53935", src: BASE_URL + "Games/exo/index.html" },
+      { name: "factory-balls-forever", tag: "Browser", icon: "FA", color: "#8e24aa", src: BASE_URL + "Games/factory-balls-forever/index.html" },
+      { name: "factoryballs", tag: "Browser", icon: "FA", color: "#1e88e5", src: BASE_URL + "Games/factoryballs/index.html" },
+      { name: "factoryballsforever", tag: "Browser", icon: "FA", color: "#43a047", src: BASE_URL + "Games/factoryballsforever/index.html" },
+      { name: "fake-virus", tag: "Browser", icon: "FA", color: "#fb8c00", src: BASE_URL + "Games/fake-virus/index.html" },
+      { name: "fancypantsadventure", tag: "Browser", icon: "FA", color: "#00acc1", src: BASE_URL + "Games/fancypantsadventure.html" },
+      { name: "fancypantsadventure2", tag: "Browser", icon: "FA", color: "#5e35b1", src: BASE_URL + "Games/fancypantsadventure2.html" },
+      { name: "fancypantsadventures", tag: "Browser", icon: "FA", color: "#d81b60", src: BASE_URL + "Games/fancypantsadventures/index.html" },
+      { name: "fbwg", tag: "Browser", icon: "FB", color: "#00897b", src: BASE_URL + "Games/fbwg/index.html" },
+      { name: "finns-fantastic-food-machine", tag: "Browser", icon: "FI", color: "#6d4c41", src: BASE_URL + "Games/finns-fantastic-food-machine/index.html" },
+      { name: "fireboyandwatergirl", tag: "Browser", icon: "FI", color: "#546e7a", src: BASE_URL + "Games/fireboyandwatergirl.html" },
+      { name: "fireboyandwatergirl2", tag: "Browser", icon: "FI", color: "#fdd835", src: BASE_URL + "Games/fireboyandwatergirl2.html" },
+      { name: "fireboyandwatergirl3", tag: "Browser", icon: "FI", color: "#e53935", src: BASE_URL + "Games/fireboyandwatergirl3.html" },
+      { name: "fireboyandwatergirl4", tag: "Browser", icon: "FI", color: "#8e24aa", src: BASE_URL + "Games/fireboyandwatergirl4.html" },
+      { name: "fireboywatergirlforesttemple", tag: "Browser", icon: "FI", color: "#1e88e5", src: BASE_URL + "Games/fireboywatergirlforesttemple/index.html" },
+      { name: "fireice", tag: "Browser", icon: "FI", color: "#43a047", src: BASE_URL + "Games/fireice/index.html" },
+      { name: "firewater", tag: "Browser", icon: "FI", color: "#fb8c00", src: BASE_URL + "Games/firewater/index.html" },
+      { name: "Five Nights At Epstiens 2", tag: "Browser", icon: "FI", color: "#00acc1", src: BASE_URL + "Games/Five Nights At Epstiens 2/index.html" },
+      { name: "flappy-2048", tag: "Browser", icon: "FL", color: "#5e35b1", src: BASE_URL + "Games/flappy-2048/index.html" },
+      { name: "flappy-bird", tag: "Browser", icon: "FL", color: "#d81b60", src: BASE_URL + "Games/flappy-bird/index.html" },
+      { name: "flappy-defense", tag: "Browser", icon: "FL", color: "#00897b", src: BASE_URL + "Games/flappy-defense/index.html" },
+      { name: "flappybird", tag: "Browser", icon: "FL", color: "#6d4c41", src: BASE_URL + "Games/flappybird/index.html" },
+      { name: "flashtetris", tag: "Browser", icon: "FL", color: "#546e7a", src: BASE_URL + "Games/flashtetris/index.html" },
+      { name: "flippy-fish", tag: "Browser", icon: "FL", color: "#fdd835", src: BASE_URL + "Games/flippy-fish/index.html" },
+      { name: "flood-runner-2", tag: "Browser", icon: "FL", color: "#e53935", src: BASE_URL + "Games/flood-runner-2/index.html" },
+      { name: "floodrunner2", tag: "Browser", icon: "FL", color: "#8e24aa", src: BASE_URL + "Games/floodrunner2.html" },
+      { name: "floodrunner3", tag: "Browser", icon: "FL", color: "#1e88e5", src: BASE_URL + "Games/floodrunner3.html" },
+      { name: "floodrunner4", tag: "Browser", icon: "FL", color: "#43a047", src: BASE_URL + "Games/floodrunner4.html" },
+      { name: "fnaf", tag: "Browser", icon: "FN", color: "#fb8c00", src: BASE_URL + "Games/fnaf.html" },
+      { name: "fnaf2", tag: "Browser", icon: "FN", color: "#00acc1", src: BASE_URL + "Games/fnaf2.html" },
+      { name: "fnaf3", tag: "Browser", icon: "FN", color: "#5e35b1", src: BASE_URL + "Games/fnaf3.html" },
+      { name: "fnaf4", tag: "Browser", icon: "FN", color: "#d81b60", src: BASE_URL + "Games/fnaf4.html" },
+      { name: "footballbros", tag: "Browser", icon: "FO", color: "#00897b", src: BASE_URL + "Games/footballbros.html" },
+      { name: "footballlegends", tag: "Browser", icon: "FO", color: "#6d4c41", src: BASE_URL + "Games/footballlegends.html" },
+      { name: "freerider3", tag: "Browser", icon: "FR", color: "#546e7a", src: BASE_URL + "Games/freerider3.html" },
+      { name: "fridaynightfunkin", tag: "Browser", icon: "FR", color: "#fdd835", src: BASE_URL + "Games/fridaynightfunkin/index.html" },
+      { name: "friendlyfire", tag: "Browser", icon: "FR", color: "#e53935", src: BASE_URL + "Games/friendlyfire/index.html" },
+      { name: "froggys-battle", tag: "Browser", icon: "FR", color: "#8e24aa", src: BASE_URL + "Games/froggys-battle/index.html" },
+      { name: "fruitninja", tag: "Browser", icon: "FR", color: "#1e88e5", src: BASE_URL + "Games/fruitninja/index.html" },
+      { name: "frying-nemo", tag: "Browser", icon: "FR", color: "#43a047", src: BASE_URL + "Games/frying-nemo/index.html" },
+      { name: "funnybattle", tag: "Browser", icon: "FU", color: "#fb8c00", src: BASE_URL + "Games/funnybattle.html" },
+      { name: "funnybattle2", tag: "Browser", icon: "FU", color: "#00acc1", src: BASE_URL + "Games/funnybattle2.html" },
+      { name: "funnymadracing", tag: "Browser", icon: "FU", color: "#5e35b1", src: BASE_URL + "Games/funnymadracing.html" },
+      { name: "funnyshooter2", tag: "Browser", icon: "FU", color: "#d81b60", src: BASE_URL + "Games/funnyshooter2.html" },
+      { name: "game-inside", tag: "Browser", icon: "GA", color: "#00897b", src: BASE_URL + "Games/game-inside/index.html" },
+      { name: "generic-fishing-game", tag: "Browser", icon: "GE", color: "#6d4c41", src: BASE_URL + "Games/generic-fishing-game/index.html" },
+      { name: "geodash", tag: "Browser", icon: "GE", color: "#546e7a", src: BASE_URL + "Games/geodash/index.html" },
+      { name: "geodash-2", tag: "Browser", icon: "GE", color: "#fdd835", src: BASE_URL + "Games/geodash-2/index.html" },
+      { name: "geometry_jump_sketchy", tag: "Browser", icon: "GE", color: "#e53935", src: BASE_URL + "Games/geometry_jump_sketchy/index.html" },
+      { name: "geometrydash", tag: "Browser", icon: "GE", color: "#8e24aa", src: BASE_URL + "Games/geometrydash/index.html" },
+      { name: "geometrydashlite", tag: "Browser", icon: "GE", color: "#1e88e5", src: BASE_URL + "Games/geometrydashlite.html" },
+      { name: "geometryvibes", tag: "Browser", icon: "GE", color: "#43a047", src: BASE_URL + "Games/geometryvibes.html" },
+      { name: "georgeandtheprinter", tag: "Browser", icon: "GE", color: "#fb8c00", src: BASE_URL + "Games/georgeandtheprinter/index.html" },
+      { name: "getaway-shootout", tag: "Browser", icon: "GE", color: "#00acc1", src: BASE_URL + "Games/getaway-shootout/index.html" },
+      { name: "getontop", tag: "Browser", icon: "GE", color: "#5e35b1", src: BASE_URL + "Games/getontop.html" },
+      { name: "gimme-the-airpod", tag: "Browser", icon: "GI", color: "#00897b", src: BASE_URL + "Games/gimme-the-airpod/index.html" },
+      { name: "gladihoppers", tag: "Browser", icon: "GL", color: "#6d4c41", src: BASE_URL + "Games/gladihoppers.html" },
+      { name: "glass-city", tag: "Browser", icon: "GL", color: "#546e7a", src: BASE_URL + "Games/glass-city/index.html" },
+      { name: "go-ball", tag: "Browser", icon: "GO", color: "#fdd835", src: BASE_URL + "Games/go-ball/index.html" },
+      { name: "golf", tag: "Browser", icon: "GO", color: "#e53935", src: BASE_URL + "Games/golf/index.html" },
+      { name: "goodnight", tag: "Browser", icon: "GO", color: "#8e24aa", src: BASE_URL + "Games/goodnight/index.html" },
+      { name: "google-snake", tag: "Browser", icon: "GO", color: "#1e88e5", src: BASE_URL + "Games/google-snake/index.html" },
+      { name: "googlebaseball", tag: "Browser", icon: "GO", color: "#43a047", src: BASE_URL + "Games/googlebaseball.html" },
+      { name: "googledino", tag: "Browser", icon: "GO", color: "#fb8c00", src: BASE_URL + "Games/googledino.html" },
+      { name: "gopher", tag: "Browser", icon: "GO", color: "#00acc1", src: BASE_URL + "Games/gopher/index.html" },
+      { name: "granny", tag: "Browser", icon: "GR", color: "#5e35b1", src: BASE_URL + "Games/granny.html" },
+      { name: "granny2", tag: "Browser", icon: "GR", color: "#d81b60", src: BASE_URL + "Games/granny2.html" },
+      { name: "gravity-soccer", tag: "Browser", icon: "GR", color: "#00897b", src: BASE_URL + "Games/gravity-soccer/index.html" },
+      { name: "green", tag: "Browser", icon: "GR", color: "#6d4c41", src: BASE_URL + "Games/green/index.html" },
+      { name: "greybox", tag: "Browser", icon: "GR", color: "#546e7a", src: BASE_URL + "Games/greybox/index.html" },
+      { name: "grindcraft", tag: "Browser", icon: "GR", color: "#fdd835", src: BASE_URL + "Games/grindcraft/index.html" },
+      { name: "grow-in-the-hole", tag: "Browser", icon: "GR", color: "#e53935", src: BASE_URL + "Games/grow-in-the-hole/index.html" },
+      { name: "guesstheiranswer", tag: "Browser", icon: "GU", color: "#8e24aa", src: BASE_URL + "Games/guesstheiranswer.html" },
+      { name: "gun-mayhem", tag: "Browser", icon: "GU", color: "#1e88e5", src: BASE_URL + "Games/gun-mayhem/index.html" },
+      { name: "gun-mayhem-2", tag: "Browser", icon: "GU", color: "#43a047", src: BASE_URL + "Games/gun-mayhem-2/index.html" },
+      { name: "gun-mayhem-redux", tag: "Browser", icon: "GU", color: "#fb8c00", src: BASE_URL + "Games/gun-mayhem-redux/index.html" },
+      { name: "gunspin", tag: "Browser", icon: "GU", color: "#00acc1", src: BASE_URL + "Games/gunspin/index.html" },
+      { name: "hackertype", tag: "Browser", icon: "HA", color: "#5e35b1", src: BASE_URL + "Games/hackertype/index.html" },
+      { name: "hanger2", tag: "Browser", icon: "HA", color: "#d81b60", src: BASE_URL + "Games/hanger2.html" },
+      { name: "happy-hop", tag: "Browser", icon: "HA", color: "#00897b", src: BASE_URL + "Games/happy-hop/index.html" },
+      { name: "happy-wheels", tag: "Browser", icon: "HA", color: "#6d4c41", src: BASE_URL + "Games/happy-wheels/index.html" },
+      { name: "happywheels", tag: "Browser", icon: "HA", color: "#546e7a", src: BASE_URL + "Games/happywheels.html" },
+      { name: "hba", tag: "Browser", icon: "HB", color: "#fdd835", src: BASE_URL + "Games/hba/index.html" },
+      { name: "helicopter", tag: "Browser", icon: "HE", color: "#e53935", src: BASE_URL + "Games/helicopter/index.html" },
+      { name: "helios", tag: "Browser", icon: "HE", color: "#8e24aa", src: BASE_URL + "Games/helios/index.html" },
+      { name: "hexempire", tag: "Browser", icon: "HE", color: "#43a047", src: BASE_URL + "Games/hexempire/index.html" },
+      { name: "HexGL", tag: "Browser", icon: "HE", color: "#fb8c00", src: BASE_URL + "Games/HexGL/index.html" },
+      { name: "hextris", tag: "Browser", icon: "HE", color: "#00acc1", src: BASE_URL + "Games/hextris/index.html" },
+      { name: "house-of-hazards", tag: "Browser", icon: "HO", color: "#6d4c41", src: BASE_URL + "Games/house-of-hazards/index.html" },
+      { name: "HTML Tower Defence", tag: "Browser", icon: "HT", color: "#e53935", src: BASE_URL + "Games/HTML Tower Defence.html" },
+      { name: "icys-purple-head", tag: "Browser", icon: "IC", color: "#8e24aa", src: BASE_URL + "Games/icys-purple-head/index.html" },
+      { name: "idle-breakout", tag: "Browser", icon: "ID", color: "#1e88e5", src: BASE_URL + "Games/idle-breakout/index.html" },
+      { name: "idle-shark", tag: "Browser", icon: "ID", color: "#43a047", src: BASE_URL + "Games/idle-shark/index.html" },
+      { name: "impossiblequiz", tag: "Browser", icon: "IM", color: "#00acc1", src: BASE_URL + "Games/impossiblequiz/index.html" },
+      { name: "interactivebuddy", tag: "Browser", icon: "IN", color: "#d81b60", src: BASE_URL + "Games/interactivebuddy/index.html" },
+      { name: "iscribble-io", tag: "Browser", icon: "IS", color: "#6d4c41", src: BASE_URL + "Games/iscribble-io/index.html" },
+      { name: "jelly-truck", tag: "Browser", icon: "JE", color: "#546e7a", src: BASE_URL + "Games/jelly-truck/index.html" },
+      { name: "jetpack", tag: "Browser", icon: "JE", color: "#fdd835", src: BASE_URL + "Games/jetpack/index.html" },
+      { name: "jimothy-piggerton", tag: "Browser", icon: "JI", color: "#8e24aa", src: BASE_URL + "Games/jimothy-piggerton/index.html" },
+      { name: "just-one-boss", tag: "Browser", icon: "JU", color: "#fb8c00", src: BASE_URL + "Games/just-one-boss/index.html" },
+      { name: "justfall", tag: "Browser", icon: "JU", color: "#00acc1", src: BASE_URL + "Games/justfall/index.html" },
+      { name: "kaid-vm", tag: "Browser", icon: "KA", color: "#5e35b1", src: BASE_URL + "Games/kaid-vm/index.html" },
+      { name: "kart-fight-io", tag: "Browser", icon: "KA", color: "#00897b", src: BASE_URL + "Games/kart-fight-io/index.html" },
+      { name: "kitchen-gun-game", tag: "Browser", icon: "KI", color: "#546e7a", src: BASE_URL + "Games/kitchen-gun-game/index.html" },
+      { name: "kittencannon", tag: "Browser", icon: "KI", color: "#fdd835", src: BASE_URL + "Games/kittencannon/index.html" },
+      { name: "klocki", tag: "Browser", icon: "KL", color: "#e53935", src: BASE_URL + "Games/klocki/index.html" },
+      { name: "konnekt", tag: "Browser", icon: "KO", color: "#8e24aa", src: BASE_URL + "Games/konnekt/index.html" },
+      { name: "krunker", tag: "Browser", icon: "KR", color: "#1e88e5", src: BASE_URL + "Games/krunker/index.html" },
+      { name: "learntofly", tag: "Browser", icon: "LE", color: "#43a047", src: BASE_URL + "Games/learntofly/index.html" },
+      { name: "learntofly2", tag: "Browser", icon: "LE", color: "#fb8c00", src: BASE_URL + "Games/learntofly2/index.html" },
+      { name: "line-rider", tag: "Browser", icon: "LI", color: "#00897b", src: BASE_URL + "Games/line-rider/index.html" },
+      { name: "linquest", tag: "Browser", icon: "LI", color: "#6d4c41", src: BASE_URL + "Games/linquest/index.html" },
+      { name: "madalin-stunt-cars-2", tag: "Browser", icon: "MA", color: "#546e7a", src: BASE_URL + "Games/madalin-stunt-cars-2/index.html" },
+      { name: "madalin-stunt-cars-3", tag: "Browser", icon: "MA", color: "#fdd835", src: BASE_URL + "Games/madalin-stunt-cars-3/index.html" },
+      { name: "makeitmeme", tag: "Browser", icon: "MA", color: "#8e24aa", src: BASE_URL + "Games/makeitmeme/index.html" },
+      { name: "mario", tag: "Browser", icon: "MA", color: "#1e88e5", src: BASE_URL + "Games/mario/index.html" },
+      { name: "marvinspectrum", tag: "Browser", icon: "MA", color: "#43a047", src: BASE_URL + "Games/marvinspectrum/index.html" },
+      { name: "matrixrampage", tag: "Browser", icon: "MA", color: "#fb8c00", src: BASE_URL + "Games/matrixrampage/index.html" },
+      { name: "maze", tag: "Browser", icon: "MA", color: "#00acc1", src: BASE_URL + "Games/maze.html" },
+      { name: "mc1.5.2", tag: "Browser", icon: "MC", color: "#5e35b1", src: BASE_URL + "Games/mc1.5.2/index.html" },
+      { name: "mcbeta0.30", tag: "Browser", icon: "MC", color: "#d81b60", src: BASE_URL + "Games/mcbeta0.30/index.html" },
+      { name: "mcbeta1.3", tag: "Browser", icon: "MC", color: "#00897b", src: BASE_URL + "Games/mcbeta1.3/index.html" },
+      { name: "meat-boy", tag: "Browser", icon: "ME", color: "#6d4c41", src: BASE_URL + "Games/meat-boy/index.html" },
+      { name: "meme2048", tag: "Browser", icon: "ME", color: "#fdd835", src: BASE_URL + "Games/meme2048/index.html" },
+      { name: "minecraft", tag: "Browser", icon: "MI", color: "#8e24aa", src: BASE_URL + "Games/minecraft/index.html" },
+      { name: "minecraft-classic", tag: "Browser", icon: "MI", color: "#1e88e5", src: BASE_URL + "Games/minecraft-classic/index.html" },
+      { name: "minecraftbeta", tag: "Browser", icon: "MI", color: "#43a047", src: BASE_URL + "Games/minecraftbeta/index.html" },
+      { name: "minesweeper", tag: "Browser", icon: "MI", color: "#fb8c00", src: BASE_URL + "Games/minesweeper/index.html" },
+      { name: "mini_car_game", tag: "Browser", icon: "MI", color: "#00acc1", src: BASE_URL + "Games/mini_car_game.html" },
+      { name: "mini-stilts", tag: "Browser", icon: "MI", color: "#5e35b1", src: BASE_URL + "Games/mini-stilts/index.html" },
+      { name: "miniputt", tag: "Browser", icon: "MI", color: "#d81b60", src: BASE_URL + "Games/miniputt/index.html" },
+      { name: "missiles", tag: "Browser", icon: "MI", color: "#00897b", src: BASE_URL + "Games/missiles/index.html" },
+      { name: "moto-x3m-2", tag: "Browser", icon: "MO", color: "#546e7a", src: BASE_URL + "Games/moto-x3m-2/index.html" },
+      { name: "moto-x3m-pool-party", tag: "Browser", icon: "MO", color: "#fdd835", src: BASE_URL + "Games/moto-x3m-pool-party/index.html" },
+      { name: "motox3m", tag: "Browser", icon: "MO", color: "#e53935", src: BASE_URL + "Games/motox3m/index.html" },
+      { name: "motox3m-pool", tag: "Browser", icon: "MO", color: "#8e24aa", src: BASE_URL + "Games/motox3m-pool/index.html" },
+      { name: "motox3m-spooky", tag: "Browser", icon: "MO", color: "#1e88e5", src: BASE_URL + "Games/motox3m-spooky/index.html" },
+      { name: "motox3m-winter", tag: "Browser", icon: "MO", color: "#43a047", src: BASE_URL + "Games/motox3m-winter/index.html" },
+      { name: "motox3m2", tag: "Browser", icon: "MO", color: "#fb8c00", src: BASE_URL + "Games/motox3m2/index.html" },
+      { name: "motox3mwinter", tag: "Browser", icon: "MO", color: "#00897b", src: BASE_URL + "Games/motox3mwinter/index.html" },
+      { name: "my-friend-pedro", tag: "Browser", icon: "MY", color: "#6d4c41", src: BASE_URL + "Games/my-friend-pedro/index.html" },
+      { name: "n-gon", tag: "Browser", icon: "N-", color: "#546e7a", src: BASE_URL + "Games/n-gon/index.html" },
+      { name: "ninja", tag: "Browser", icon: "NI", color: "#fdd835", src: BASE_URL + "Games/ninja/index.html" },
+      { name: "ninjavsevilcorp", tag: "Browser", icon: "NI", color: "#e53935", src: BASE_URL + "Games/ninjavsevilcorp/index.html" },
+      { name: "ns-shaft", tag: "Browser", icon: "NS", color: "#1e88e5", src: BASE_URL + "Games/ns-shaft/index.html" },
+      { name: "OfflineParadise", tag: "Browser", icon: "OF", color: "#43a047", src: BASE_URL + "Games/OfflineParadise/index.html" },
+      { name: "om-bounce", tag: "Browser", icon: "OM", color: "#fb8c00", src: BASE_URL + "Games/om-bounce/index.html" },
+      { name: "one-screen-run", tag: "Browser", icon: "ON", color: "#00acc1", src: BASE_URL + "Games/one-screen-run/index.html" },
+      { name: "one-screen-run-2", tag: "Browser", icon: "ON", color: "#5e35b1", src: BASE_URL + "Games/one-screen-run-2/index.html" },
+      { name: "oppositeday", tag: "Browser", icon: "OP", color: "#d81b60", src: BASE_URL + "Games/oppositeday.html" },
+      { name: "osu", tag: "Browser", icon: "OS", color: "#00897b", src: BASE_URL + "Games/osu/index.html" },
+      { name: "ovo", tag: "Browser", icon: "OV", color: "#6d4c41", src: BASE_URL + "Games/ovo/index.html" },
+      { name: "packabunchas", tag: "Browser", icon: "PA", color: "#e53935", src: BASE_URL + "Games/packabunchas/index.html" },
+      { name: "pacman", tag: "Browser", icon: "PA", color: "#8e24aa", src: BASE_URL + "Games/pacman/index.html" },
+      { name: "pacman-fps", tag: "Browser", icon: "PA", color: "#1e88e5", src: BASE_URL + "Games/pacman-fps/index.html" },
+      { name: "pandemic2", tag: "Browser", icon: "PA", color: "#43a047", src: BASE_URL + "Games/pandemic2/index.html" },
+      { name: "papa-louie", tag: "Browser", icon: "PA", color: "#fb8c00", src: BASE_URL + "Games/papa-louie/index.html" },
+      { name: "papas-burgeria", tag: "Browser", icon: "PA", color: "#00acc1", src: BASE_URL + "Games/papas-burgeria/index.html" },
+      { name: "papas-freezeria", tag: "Browser", icon: "PA", color: "#5e35b1", src: BASE_URL + "Games/papas-freezeria/index.html" },
+      { name: "papas-hot-doggeria", tag: "Browser", icon: "PA", color: "#d81b60", src: BASE_URL + "Games/papas-hot-doggeria/index.html" },
+      { name: "papas-pancakeria", tag: "Browser", icon: "PA", color: "#00897b", src: BASE_URL + "Games/papas-pancakeria/index.html" },
+      { name: "papas-pizzeria", tag: "Browser", icon: "PA", color: "#6d4c41", src: BASE_URL + "Games/papas-pizzeria/index.html" },
+      { name: "papas-sushiria", tag: "Browser", icon: "PA", color: "#546e7a", src: BASE_URL + "Games/papas-sushiria/index.html" },
+      { name: "papas-wingeria", tag: "Browser", icon: "PA", color: "#fdd835", src: BASE_URL + "Games/papas-wingeria/index.html" },
+      { name: "papasburgeria", tag: "Browser", icon: "PA", color: "#8e24aa", src: BASE_URL + "Games/papasburgeria/index.html" },
+      { name: "papaspizzaria", tag: "Browser", icon: "PA", color: "#6d4c41", src: BASE_URL + "Games/papaspizzaria/index.html" },
+      { name: "paperio2", tag: "Browser", icon: "PA", color: "#43a047", src: BASE_URL + "Games/paperio2/index.html" },
+      { name: "papery-planes", tag: "Browser", icon: "PA", color: "#fb8c00", src: BASE_URL + "Games/papery-planes/index.html" },
+      { name: "particle-clicker", tag: "Browser", icon: "PA", color: "#00897b", src: BASE_URL + "Games/particle-clicker/index.html" },
+      { name: "particleclicker", tag: "Browser", icon: "PA", color: "#6d4c41", src: BASE_URL + "Games/particleclicker/index.html" },
+      { name: "path-finder", tag: "Browser", icon: "PA", color: "#546e7a", src: BASE_URL + "Games/path-finder/index.html" },
+      { name: "pe-noire", tag: "Browser", icon: "PE", color: "#fdd835", src: BASE_URL + "Games/pe-noire/index.html" },
+      { name: "pikwip", tag: "Browser", icon: "PI", color: "#8e24aa", src: BASE_URL + "Games/pikwip/index.html" },
+      { name: "pixel-cave", tag: "Browser", icon: "PI", color: "#43a047", src: BASE_URL + "Games/pixel-cave/index.html" },
+      { name: "polybranch", tag: "Browser", icon: "PO", color: "#00897b", src: BASE_URL + "Games/polybranch/index.html" },
+      { name: "popcat-classic", tag: "Browser", icon: "PO", color: "#fdd835", src: BASE_URL + "Games/popcat-classic/index.html" },
+      { name: "portalflash", tag: "Browser", icon: "PO", color: "#e53935", src: BASE_URL + "Games/portalflash/index.html" },
+      { name: "precision-client", tag: "Browser", icon: "PR", color: "#1e88e5", src: BASE_URL + "Games/precision-client/index.html" },
+      { name: "protektor", tag: "Browser", icon: "PR", color: "#43a047", src: BASE_URL + "Games/protektor/index.html" },
+      { name: "push-the-square", tag: "Browser", icon: "PU", color: "#fb8c00", src: BASE_URL + "Games/push-the-square/index.html" },
+      { name: "push-your-luck", tag: "Browser", icon: "PU", color: "#00acc1", src: BASE_URL + "Games/push-your-luck/index.html" },
+      { name: "pushback", tag: "Browser", icon: "PU", color: "#5e35b1", src: BASE_URL + "Games/pushback/index.html" },
+      { name: "puzzle-ball", tag: "Browser", icon: "PU", color: "#d81b60", src: BASE_URL + "Games/puzzle-ball/index.html" },
+      { name: "pvz-2", tag: "Browser", icon: "PV", color: "#00897b", src: BASE_URL + "Games/pvz-2/index.html" },
+      { name: "q1k3", tag: "Browser", icon: "Q1", color: "#6d4c41", src: BASE_URL + "Games/q1k3/index.html" },
+      { name: "racer", tag: "Browser", icon: "RA", color: "#546e7a", src: BASE_URL + "Games/racer/index.html" },
+      { name: "radiusraid", tag: "Browser", icon: "RA", color: "#fdd835", src: BASE_URL + "Games/radiusraid/index.html" },
+      { name: "retro-bowl", tag: "Browser", icon: "RE", color: "#00acc1", src: BASE_URL + "Games/retro-bowl/index.html" },
+      { name: "retrobowl", tag: "Browser", icon: "RE", color: "#5e35b1", src: BASE_URL + "Games/retrobowl/index.html" },
+      { name: "retrohaunt", tag: "Browser", icon: "RE", color: "#00897b", src: BASE_URL + "Games/retrohaunt/index.html" },
+      { name: "rise-of-neon-square", tag: "Browser", icon: "RI", color: "#5e35b1", src: BASE_URL + "Games/rise-of-neon-square/index.html" },
+      { name: "roadblocks", tag: "Browser", icon: "RO", color: "#d81b60", src: BASE_URL + "Games/roadblocks/index.html" },
+      { name: "rocking-sky-trip", tag: "Browser", icon: "RO", color: "#6d4c41", src: BASE_URL + "Games/rocking-sky-trip/index.html" },
+      { name: "rolling-forests", tag: "Browser", icon: "RO", color: "#546e7a", src: BASE_URL + "Games/rolling-forests/index.html" },
+      { name: "rolly-vortex", tag: "Browser", icon: "RO", color: "#fdd835", src: BASE_URL + "Games/rolly-vortex/index.html" },
+      { name: "rooftop-snipers", tag: "Browser", icon: "RO", color: "#e53935", src: BASE_URL + "Games/rooftop-snipers/index.html" },
+      { name: "run-3", tag: "Browser", icon: "RU", color: "#43a047", src: BASE_URL + "Games/run-3/index.html" },
+      { name: "run3", tag: "Browser", icon: "RU", color: "#00acc1", src: BASE_URL + "Games/run3/index.html" },
+      { name: "sand-game", tag: "Browser", icon: "SA", color: "#5e35b1", src: BASE_URL + "Games/sand-game/index.html" },
+      { name: "sandboxels", tag: "Browser", icon: "SA", color: "#d81b60", src: BASE_URL + "Games/sandboxels/index.html" },
+      { name: "sandgame", tag: "Browser", icon: "SA", color: "#00897b", src: BASE_URL + "Games/sandgame.html" },
+      { name: "scrambled-eggs", tag: "Browser", icon: "SC", color: "#6d4c41", src: BASE_URL + "Games/scrambled-eggs/index.html" },
+      { name: "scrapmetal", tag: "Browser", icon: "SC", color: "#546e7a", src: BASE_URL + "Games/scrapmetal/index.html" },
+      { name: "senya-and-oscar-2", tag: "Browser", icon: "SE", color: "#fdd835", src: BASE_URL + "Games/senya-and-oscar-2/index.html" },
+      { name: "sg", tag: "Browser", icon: "SG", color: "#e53935", src: BASE_URL + "Games/sg/index.html" },
+      { name: "shadow-world-adventure", tag: "Browser", icon: "SH", color: "#8e24aa", src: BASE_URL + "Games/shadow-world-adventure/index.html" },
+      { name: "shards", tag: "Browser", icon: "SH", color: "#1e88e5", src: BASE_URL + "Games/shards/index.html" },
+      { name: "shift-flash", tag: "Browser", icon: "SH", color: "#43a047", src: BASE_URL + "Games/shift-flash/index.html" },
+      { name: "shift-flash-2", tag: "Browser", icon: "SH", color: "#fb8c00", src: BASE_URL + "Games/shift-flash-2/index.html" },
+      { name: "short-life-2", tag: "Browser", icon: "SH", color: "#00acc1", src: BASE_URL + "Games/short-life-2/index.html" },
+      { name: "short-ride", tag: "Browser", icon: "SH", color: "#5e35b1", src: BASE_URL + "Games/short-ride/index.html" },
+      { name: "shuttledeck", tag: "Browser", icon: "SH", color: "#00897b", src: BASE_URL + "Games/shuttledeck/index.html" },
+      { name: "skyblock", tag: "Browser", icon: "SK", color: "#6d4c41", src: BASE_URL + "Games/skyblock/index.html" },
+      { name: "sleepingbeauty", tag: "Browser", icon: "SL", color: "#546e7a", src: BASE_URL + "Games/sleepingbeauty/index.html" },
+      { name: "slice-of-sasha", tag: "Browser", icon: "SL", color: "#fdd835", src: BASE_URL + "Games/slice-of-sasha/index.html" },
+      { name: "slither", tag: "Browser", icon: "SL", color: "#e53935", src: BASE_URL + "Games/slither/index.html" },
+      { name: "slither snake", tag: "Browser", icon: "SL", color: "#8e24aa", src: BASE_URL + "Games/slither snake/index.html" },
+      { name: "slope", tag: "Browser", icon: "SL", color: "#1e88e5", src: BASE_URL + "Games/slope/index.html" },
+      { name: "slope-ball", tag: "Browser", icon: "SL", color: "#43a047", src: BASE_URL + "Games/slope-ball/index.html" },
+      { name: "slope2", tag: "Browser", icon: "SL", color: "#fb8c00", src: BASE_URL + "Games/slope2/index.html" },
+      { name: "sm63", tag: "Browser", icon: "SM", color: "#6d4c41", src: BASE_URL + "Games/sm63/index.html" },
+      { name: "sm64", tag: "Browser", icon: "SM", color: "#546e7a", src: BASE_URL + "Games/sm64/index.html" },
+      { name: "smashkarts", tag: "Browser", icon: "SM", color: "#fdd835", src: BASE_URL + "Games/smashkarts/index.html" },
+      { name: "smokingbarrels", tag: "Browser", icon: "SM", color: "#e53935", src: BASE_URL + "Games/smokingbarrels/index.html" },
+      { name: "snake", tag: "Browser", icon: "SN", color: "#8e24aa", src: BASE_URL + "Games/snake/index.html" },
+      { name: "Snakegame", tag: "Browser", icon: "SN", color: "#1e88e5", src: BASE_URL + "Games/Snakegame.html" },
+      { name: "snowbattle", tag: "Browser", icon: "SN", color: "#fb8c00", src: BASE_URL + "Games/snowbattle/index.html" },
+      { name: "soldier-legend", tag: "Browser", icon: "SO", color: "#5e35b1", src: BASE_URL + "Games/soldier-legend/index.html" },
+      { name: "solitaire", tag: "Browser", icon: "SO", color: "#d81b60", src: BASE_URL + "Games/solitaire/index.html" },
+      { name: "sort-the-court", tag: "Browser", icon: "SO", color: "#00897b", src: BASE_URL + "Games/sort-the-court/index.html" },
+      { name: "soundboard", tag: "Browser", icon: "SO", color: "#6d4c41", src: BASE_URL + "Games/soundboard/index.html" },
+      { name: "space-company", tag: "Browser", icon: "SP", color: "#546e7a", src: BASE_URL + "Games/space-company/index.html" },
+      { name: "spacebarclicker", tag: "Browser", icon: "SP", color: "#fdd835", src: BASE_URL + "Games/spacebarclicker.html" },
+      { name: "spacecompany", tag: "Browser", icon: "SP", color: "#e53935", src: BASE_URL + "Games/spacecompany/index.html" },
+      { name: "spacegarden", tag: "Browser", icon: "SP", color: "#8e24aa", src: BASE_URL + "Games/spacegarden/index.html" },
+      { name: "spacehuggers", tag: "Browser", icon: "SP", color: "#1e88e5", src: BASE_URL + "Games/spacehuggers/index.html" },
+      { name: "spelunky", tag: "Browser", icon: "SP", color: "#d81b60", src: BASE_URL + "Games/spelunky/index.html" },
+      { name: "ssf", tag: "Browser", icon: "SS", color: "#6d4c41", src: BASE_URL + "Games/ssf/index.html" },
+      { name: "stack", tag: "Browser", icon: "ST", color: "#546e7a", src: BASE_URL + "Games/stack/index.html" },
+      { name: "stack-bump-3d", tag: "Browser", icon: "ST", color: "#fdd835", src: BASE_URL + "Games/stack-bump-3d/index.html" },
+      { name: "station-141", tag: "Browser", icon: "ST", color: "#1e88e5", src: BASE_URL + "Games/station-141/index.html" },
+      { name: "stealingthediamond", tag: "Browser", icon: "ST", color: "#43a047", src: BASE_URL + "Games/stealingthediamond/index.html" },
+      { name: "stick-archers-battle", tag: "Browser", icon: "ST", color: "#fb8c00", src: BASE_URL + "Games/stick-archers-battle/index.html" },
+      { name: "stickclimb", tag: "Browser", icon: "ST", color: "#5e35b1", src: BASE_URL + "Games/stickclimb/index.html" },
+      { name: "stickman", tag: "Browser", icon: "ST", color: "#00897b", src: BASE_URL + "Games/stickman/index.html" },
+      { name: "stickman-boost", tag: "Browser", icon: "ST", color: "#6d4c41", src: BASE_URL + "Games/stickman-boost/index.html" },
+      { name: "stickman-dismount", tag: "Browser", icon: "ST", color: "#546e7a", src: BASE_URL + "Games/stickman-dismount/index.html" },
+      { name: "stickman-epic-battle", tag: "Browser", icon: "ST", color: "#fdd835", src: BASE_URL + "Games/stickman-epic-battle/index.html" },
+      { name: "stickman-golf", tag: "Browser", icon: "ST", color: "#e53935", src: BASE_URL + "Games/stickman-golf/index.html" },
+      { name: "Stickman-Survival", tag: "Browser", icon: "ST", color: "#8e24aa", src: BASE_URL + "Games/Stickman-Survival/index.html" },
+      { name: "stickwar", tag: "Browser", icon: "ST", color: "#fb8c00", src: BASE_URL + "Games/stickwar/index.html" },
+      { name: "stormthehouse2", tag: "Browser", icon: "ST", color: "#00acc1", src: BASE_URL + "Games/stormthehouse2/index.html" },
+      { name: "subway-surfers", tag: "Browser", icon: "SU", color: "#5e35b1", src: BASE_URL + "Games/subway-surfers/index.html" },
+      { name: "subway-surfers-bali", tag: "Browser", icon: "SU", color: "#d81b60", src: BASE_URL + "Games/subway-surfers-bali/index.html" },
+      { name: "super-mario-maker-online", tag: "Browser", icon: "SU", color: "#fdd835", src: BASE_URL + "Games/super-mario-maker-online/index.html" },
+      { name: "super-puffer-fish-3d", tag: "Browser", icon: "SU", color: "#e53935", src: BASE_URL + "Games/super-puffer-fish-3d/index.html" },
+      { name: "superhero-io", tag: "Browser", icon: "SU", color: "#1e88e5", src: BASE_URL + "Games/superhero-io/index.html" },
+      { name: "superhot", tag: "Browser", icon: "SU", color: "#43a047", src: BASE_URL + "Games/superhot/index.html" },
+      { name: "supermarioconstruct", tag: "Browser", icon: "SU", color: "#00acc1", src: BASE_URL + "Games/supermarioconstruct/index.html" },
+      { name: "swerve", tag: "Browser", icon: "SW", color: "#d81b60", src: BASE_URL + "Games/swerve/index.html" },
+      { name: "synesthesia", tag: "Browser", icon: "SY", color: "#00897b", src: BASE_URL + "Games/synesthesia/index.html" },
+      { name: "tactical-weapon-pack-2", tag: "Browser", icon: "TA", color: "#546e7a", src: BASE_URL + "Games/tactical-weapon-pack-2/index.html" },
+      { name: "tacticalassasin2", tag: "Browser", icon: "TA", color: "#fdd835", src: BASE_URL + "Games/tacticalassasin2/index.html" },
+      { name: "tail-of-the-dragon", tag: "Browser", icon: "TA", color: "#8e24aa", src: BASE_URL + "Games/tail-of-the-dragon/index.html" },
+      { name: "tank-trouble-2", tag: "Browser", icon: "TA", color: "#1e88e5", src: BASE_URL + "Games/tank-trouble-2/index.html" },
+      { name: "tanuki-sunset", tag: "Browser", icon: "TA", color: "#43a047", src: BASE_URL + "Games/tanuki-sunset/index.html" },
+      { name: "temple-run-2", tag: "Browser", icon: "TE", color: "#00acc1", src: BASE_URL + "Games/temple-run-2/index.html" },
+      { name: "tetris", tag: "Browser", icon: "TE", color: "#00897b", src: BASE_URL + "Games/tetris/index.html" },
+      { name: "the-final-earth", tag: "Browser", icon: "TH", color: "#6d4c41", src: BASE_URL + "Games/the-final-earth/index.html" },
+      { name: "the-final-earth-2", tag: "Browser", icon: "TH", color: "#546e7a", src: BASE_URL + "Games/the-final-earth-2/index.html" },
+      { name: "the-impossible-quiz", tag: "Browser", icon: "TH", color: "#fdd835", src: BASE_URL + "Games/the-impossible-quiz/index.html" },
+      { name: "the-impossible-quiz-2", tag: "Browser", icon: "TH", color: "#e53935", src: BASE_URL + "Games/the-impossible-quiz-2/index.html" },
+      { name: "the-little-giant", tag: "Browser", icon: "TH", color: "#8e24aa", src: BASE_URL + "Games/the-little-giant/index.html" },
+      { name: "thebattle", tag: "Browser", icon: "TH", color: "#1e88e5", src: BASE_URL + "Games/thebattle/index.html" },
+      { name: "theheist", tag: "Browser", icon: "TH", color: "#43a047", src: BASE_URL + "Games/theheist/index.html" },
+      { name: "themazeofspacegoblins", tag: "Browser", icon: "TH", color: "#5e35b1", src: BASE_URL + "Games/themazeofspacegoblins/index.html" },
+      { name: "there-is-no-game", tag: "Browser", icon: "TH", color: "#d81b60", src: BASE_URL + "Games/there-is-no-game/index.html" },
+      { name: "thisistheonlylevel", tag: "Browser", icon: "TH", color: "#546e7a", src: BASE_URL + "Games/thisistheonlylevel/index.html" },
+      { name: "tic-tac-toe", tag: "Browser", icon: "TI", color: "#e53935", src: BASE_URL + "Games/tic-tac-toe.html" },
+      { name: "time-shooter-3", tag: "Browser", icon: "TI", color: "#8e24aa", src: BASE_URL + "Games/time-shooter-3/index.html" },
+      { name: "tiny-fishing", tag: "Browser", icon: "TI", color: "#43a047", src: BASE_URL + "Games/tiny-fishing/index.html" },
+      { name: "tiny-fragments", tag: "Browser", icon: "TI", color: "#fb8c00", src: BASE_URL + "Games/tiny-fragments/index.html" },
+      { name: "tiny-islands", tag: "Browser", icon: "TI", color: "#00acc1", src: BASE_URL + "Games/tiny-islands/index.html" },
+      { name: "topple-adventure", tag: "Browser", icon: "TO", color: "#d81b60", src: BASE_URL + "Games/topple-adventure/index.html" },
+      { name: "tosstheturtle", tag: "Browser", icon: "TO", color: "#00897b", src: BASE_URL + "Games/tosstheturtle/index.html" },
+      { name: "tough-growth", tag: "Browser", icon: "TO", color: "#6d4c41", src: BASE_URL + "Games/tough-growth/index.html" },
+      { name: "towermaster", tag: "Browser", icon: "TO", color: "#546e7a", src: BASE_URL + "Games/towermaster/index.html" },
+      { name: "townscaper", tag: "Browser", icon: "TO", color: "#fdd835", src: BASE_URL + "Games/townscaper/index.html" },
+      { name: "trapthecat", tag: "Browser", icon: "TR", color: "#e53935", src: BASE_URL + "Games/trapthecat.html" },
+      { name: "trimps", tag: "Browser", icon: "TR", color: "#8e24aa", src: BASE_URL + "Games/trimps/index.html" },
+      { name: "tube-jumpers", tag: "Browser", icon: "TU", color: "#43a047", src: BASE_URL + "Games/tube-jumpers/index.html" },
+      { name: "tunnel-rush", tag: "Browser", icon: "TU", color: "#00acc1", src: BASE_URL + "Games/tunnel-rush/index.html" },
+      { name: "tunnelz", tag: "Browser", icon: "TU", color: "#d81b60", src: BASE_URL + "Games/tunnelz/index.html" },
+      { name: "tv-static", tag: "Browser", icon: "TV", color: "#00897b", src: BASE_URL + "Games/tv-static/index.html" },
+      { name: "twitch-tetris", tag: "Browser", icon: "TW", color: "#6d4c41", src: BASE_URL + "Games/twitch-tetris/index.html" },
+      { name: "underrun", tag: "Browser", icon: "UN", color: "#546e7a", src: BASE_URL + "Games/underrun/index.html" },
+      { name: "unfold-2", tag: "Browser", icon: "UN", color: "#fdd835", src: BASE_URL + "Games/unfold-2/index.html" },
+      { name: "up-left-out", tag: "Browser", icon: "UP", color: "#8e24aa", src: BASE_URL + "Games/up-left-out/index.html" },
+      { name: "veloce", tag: "Browser", icon: "VE", color: "#1e88e5", src: BASE_URL + "Games/veloce/index.html" },
+      { name: "vex3", tag: "Browser", icon: "VE", color: "#43a047", src: BASE_URL + "Games/vex3/index.html" },
+      { name: "vex4", tag: "Browser", icon: "VE", color: "#fb8c00", src: BASE_URL + "Games/vex4/index.html" },
+      { name: "vex5", tag: "Browser", icon: "VE", color: "#00acc1", src: BASE_URL + "Games/vex5/index.html" },
+      { name: "vex6", tag: "Browser", icon: "VE", color: "#5e35b1", src: BASE_URL + "Games/vex6/index.html" },
+      { name: "vex7", tag: "Browser", icon: "VE", color: "#d81b60", src: BASE_URL + "Games/vex7/index.html" },
+      { name: "waterworks", tag: "Browser", icon: "WA", color: "#e53935", src: BASE_URL + "Games/waterworks/index.html" },
+      { name: "webretro", tag: "Browser", icon: "WE", color: "#1e88e5", src: BASE_URL + "Games/webretro/index.html" },
+      { name: "winter-falling-price", tag: "Browser", icon: "WI", color: "#8e24aa", src: BASE_URL + "Games/winter-falling-price/index.html" },
+      { name: "wipo", tag: "Browser", icon: "WI", color: "#1e88e5", src: BASE_URL + "Games/wipo/index.html" },
+      { name: "wolf3d", tag: "Browser", icon: "WO", color: "#43a047", src: BASE_URL + "Games/wolf3d/index.html" },
+      { name: "wordle", tag: "Browser", icon: "WO", color: "#fb8c00", src: BASE_URL + "Games/wordle/index.html" },
+      { name: "wordleunlimited", tag: "Browser", icon: "WO", color: "#00acc1", src: BASE_URL + "Games/wordleunlimited.html" },
+      { name: "worlds-hardest-game", tag: "Browser", icon: "WO", color: "#5e35b1", src: BASE_URL + "Games/worlds-hardest-game/index.html" },
+      { name: "worlds-hardest-game-2", tag: "Browser", icon: "WO", color: "#d81b60", src: BASE_URL + "Games/worlds-hardest-game-2/index.html" },
+      { name: "x-trial-racing", tag: "Browser", icon: "X-", color: "#e53935", src: BASE_URL + "Games/x-trial-racing/index.html" },
+      { name: "xx142-b2exe", tag: "Browser", icon: "XX", color: "#8e24aa", src: BASE_URL + "Games/xx142-b2exe/index.html" },
+      { name: "yoshifabrication", tag: "Browser", icon: "YO", color: "#1e88e5", src: BASE_URL + "Games/yoshifabrication/index.html" },
+      { name: "you-are-bezos", tag: "Browser", icon: "YO", color: "#43a047", src: BASE_URL + "Games/you-are-bezos/index.html" },
+      { name: "zig-zag", tag: "Browser", icon: "ZI", color: "#fb8c00", src: BASE_URL + "Games/zig-zag/index.html" },
+      { name: "zombocalypse", tag: "Browser", icon: "ZO", color: "#5e35b1", src: BASE_URL + "Games/zombocalypse/index.html" },
+      { name: "zombs-royale", tag: "Browser", icon: "ZO", color: "#d81b60", src: BASE_URL + "Games/zombs-royale/index.html" },
+];
+
+var MUSIC = [
+      { name: "Among Us Role Reveal", src: BASE_URL + "Music/among-us-role-reveal-sound.mp3" },
+      { name: "Anime Wow", src: BASE_URL + "Music/anime-wow-sound-effect.mp3" },
+      { name: "Be Quiet", src: BASE_URL + "Music/be-quiet.mp3" },
+      { name: "Ben", src: BASE_URL + "Music/ben.mp3" },
+      { name: "Bone Crack", src: BASE_URL + "Music/bone-crack.mp3" },
+      { name: "Bottom Burp", src: BASE_URL + "Music/bottom-burp.mp3" },
+      { name: "Brother Eww", src: BASE_URL + "Music/brother-ewwwwwww.mp3" },
+      { name: "Bruh", src: BASE_URL + "Music/bruh.mp3" },
+      { name: "Calmest Virus Song", src: BASE_URL + "Music/calmest-virus-song-(salinewin-virus)-made-with-Voicemod.mp3" },
+      { name: "Chewbacca Fart", src: BASE_URL + "Music/chewbacca-fart.mp3" },
+      { name: "Discord Notification", src: BASE_URL + "Music/discord-notification.mp3" },
+      { name: "Discord Sound", src: BASE_URL + "Music/discord-sound.mp3" },
+      { name: "Ding", src: BASE_URL + "Music/ding.mp3" },
+      { name: "Daddy's Home", src: BASE_URL + "Music/daddys-home.mp3" },
+      { name: "Daddy Chill", src: BASE_URL + "Music/daddyy-chill.mp3" },
+      { name: "Downer Noise", src: BASE_URL + "Music/downer_noise.mp3" },
+      { name: "Dun Dun Dun", src: BASE_URL + "Music/dun-dun-dun-sound-effect-brass_8nFBccR.mp3" },
+      { name: "Error", src: BASE_URL + "Music/error_CDOxCYm.mp3" },
+      { name: "Fatality (Mortal Kombat)", src: BASE_URL + "Music/fatality-mortal-kombat-sound-effect-hd.mp3" },
+      { name: "Fortnite Scar Shot", src: BASE_URL + "Music/fortnite-scar-shot.mp3" },
+      { name: "Galaxy Meme", src: BASE_URL + "Music/galaxy-meme.mp3" },
+      { name: "Goofy Ahh Laugh", src: BASE_URL + "Music/goofy-ahh-laugh.mp3" },
+      { name: "Gun Shot", src: BASE_URL + "Music/gun-shot.mp3" },
+      { name: "Heavenly Music", src: BASE_URL + "Music/heavenly-music-gaming-sound-effect-hd-mp3cut.mp3" },
+      { name: "Huh", src: BASE_URL + "Music/huh_37bAoRo.mp3" },
+      { name: "iPhone Text", src: BASE_URL + "Music/iphone-text.mp3" },
+      { name: "Is That Rizz", src: BASE_URL + "Music/is-that-rizz.mp3" },
+      { name: "Mario Jump", src: BASE_URL + "Music/maro-jump-sound-effect_1.mp3" },
+      { name: "Metal Pipe Clang", src: BASE_URL + "Music/metal-pipe-clang.mp3" },
+      { name: "MLG Airhorn", src: BASE_URL + "Music/mlg-airhorn.mp3" },
+      { name: "Nuclear Diarrhea", src: BASE_URL + "Music/nuclear-diarrhea.mp3" },
+      { name: "Oh F Me", src: BASE_URL + "Music/oh-fuck-me.mp3" },
+      { name: "Pluh", src: BASE_URL + "Music/pluh.mp3" },
+      { name: "Pornhub Intro", src: BASE_URL + "Music/pornhub-intro.mp3" },
+      { name: "Proxygen Virus Song", src: BASE_URL + "Music/proxygen.exe-virus-song-made-with-Voicemod.mp3" },
+      { name: "Punch", src: BASE_URL + "Music/punch-gaming-sound-effect-hd_RzlG1GE.mp3" },
+      { name: "Rehehehe", src: BASE_URL + "Music/rehehehe.mp3" },
+      { name: "Rip My Granny", src: BASE_URL + "Music/rip-my-granny-loud-asf.mp3" },
+      { name: "Romance", src: BASE_URL + "Music/romanceeeeeeeeeeeeee.mp3" },
+      { name: "Salinewin 1", src: BASE_URL + "Music/salinewin.exe-1-made-with-Voicemod.mp3" },
+      { name: "Salinewin 2", src: BASE_URL + "Music/salinewin.exe-2-made-with-Voicemod.mp3" },
+      { name: "Salinewin 3", src: BASE_URL + "Music/salinewin.exe-3-made-with-Voicemod.mp3" },
+      { name: "Salinewin 4", src: BASE_URL + "Music/salinewin.exe-4-made-with-Voicemod.mp3" },
+      { name: "Salinewin Part 1", src: BASE_URL + "Music/salinewin.exe-part-1-made-with-Voicemod.mp3" },
+      { name: "Salinewin Part 2", src: BASE_URL + "Music/salinewin.exe-part-2-made-with-Voicemod.mp3" },
+      { name: "Spongebob Fail", src: BASE_URL + "Music/spongebob-fail.mp3" },
+      { name: "Studio Audience Aww", src: BASE_URL + "Music/studio-audience-awwww-sound-fx.mp3" },
+      { name: "Taco Bell Bong", src: BASE_URL + "Music/taco-bell-bong-sfx.mp3" },
+      { name: "Undertaker Bell", src: BASE_URL + "Music/undertakers-bell_2UwFCIe.mp3" },
+      { name: "Vine Boom", src: BASE_URL + "Music/vine-boom.mp3" },
+      { name: "Virus Beat", src: BASE_URL + "Music/virus-beat-made-with-Voicemod.mp3" },
+      { name: "We Are Charlie Kirk", src: BASE_URL + "Music/we-are-charlie-kirk-phone.mp3" },
+      { name: "What A Good Boy", src: BASE_URL + "Music/what-a-good-boy.mp3" },
+      { name: "Yeah Boiii", src: BASE_URL + "Music/yeah-boiii-i-i-i.mp3" },
+      { name: "Yippee", src: BASE_URL + "Music/yippeeeeeeeeeeeeee.mp3" },
+      { name: "You Are An Idiot", src: BASE_URL + "Music/you-are-an-idiot.mp3" },
+];
+
+var HACKS = [
+      { name: "GoGuardian Bypass", desc: "Toggle bypass to slow monitoring extensions. Use Screen Trap to block screenshots.", src: BASE_URL + "Chromebook Hacks/Goguardian mods.html" },
+      { name: "USB Tools", desc: "USB drive utilities for Chromebook.", src: BASE_URL + "Chromebook Hacks/usb.html" },
+];
+var SOUNDS = [
+      { name: "23", file: "23.mp3" }, { name: "3 fear stage 3", file: "3-fear-stage-3.mp3" },
+      { name: "999 social credit siren", file: "999-social-credit-siren.mp3" },
+      { name: "a few moments later", file: "a-few-moments-later-sponge-bob-sfx-fun.mp3" },
+      { name: "acer kick", file: "acer-kick-hardtekk-kick-tekk-ka1.mp3" },
+      { name: "ack", file: "ack.mp3" }, { name: "air biscuit", file: "air-biscuit.mp3" },
+      { name: "among us role reveal", file: "among-us-role-reveal-sound.mp3" },
+      { name: "anderdingus", file: "anderdingus.mp3" },
+      { name: "anime wow", file: "anime-wow-sound-effect.mp3" },
+      { name: "be quiet", file: "be-quiet.mp3" }, { name: "beep", file: "beep.mp3" },
+      { name: "ben", file: "ben.mp3" }, { name: "ben (1)", file: "ben (1).mp3" },
+      { name: "bomb beep", file: "bomb-beep.mp3" }, { name: "bone crack", file: "bone-crack.mp3" },
+      { name: "bottom burp", file: "bottom-burp.mp3" }, { name: "brother ewww", file: "brother-ewwwwwww.mp3" },
+      { name: "bruh", file: "bruh.mp3" }, { name: "calmest virus song", file: "calmest-virus-song-(salinewin-virus)-made-with-Voicemod.mp3" },
+      { name: "chewbacca fart", file: "chewbacca-fart.mp3" }, { name: "discord notification", file: "discord-notification.mp3" },
+      { name: "discord sound", file: "discord-sound.mp3" }, { name: "ding", file: "ding.mp3" },
+      { name: "daddys home", file: "daddys-home.mp3" }, { name: "daddy chill", file: "daddyy-chill.mp3" },
+      { name: "downer noise", file: "downer_noise.mp3" }, { name: "dun dun dun", file: "dun-dun-dun-sound-effect-brass_8nFBccR.mp3" },
+      { name: "error", file: "error_CDOxCYm.mp3" }, { name: "fatality", file: "fatality-mortal-kombat-sound-effect-hd.mp3" },
+      { name: "fortnite scar shot", file: "fortnite-scar-shot.mp3" }, { name: "galaxy meme", file: "galaxy-meme.mp3" },
+      { name: "goofy ahh laugh", file: "goofy-ahh-laugh.mp3" }, { name: "gun shot", file: "gun-shot.mp3" },
+      { name: "heavenly music", file: "heavenly-music-gaming-sound-effect-hd-mp3cut.mp3" },
+      { name: "huh", file: "huh_37bAoRo.mp3" }, { name: "iphone text", file: "iphone-text.mp3" },
+      { name: "is that rizz", file: "is-that-rizz.mp3" }, { name: "mario jump", file: "maro-jump-sound-effect_1.mp3" },
+      { name: "metal pipe clang", file: "metal-pipe-clang.mp3" }, { name: "mlg airhorn", file: "mlg-airhorn.mp3" },
+      { name: "nuclear diarrhea", file: "nuclear-diarrhea.mp3" }, { name: "oh f me", file: "oh-fuck-me.mp3" },
+      { name: "pluh", file: "pluh.mp3" }, { name: "pornhub intro", file: "pornhub-intro.mp3" },
+      { name: "proxygen virus song", file: "proxygen.exe-virus-song-made-with-Voicemod.mp3" },
+      { name: "punch", file: "punch-gaming-sound-effect-hd_RzlG1GE.mp3" },
+      { name: "rehehehe", file: "rehehehe.mp3" }, { name: "rip my granny", file: "rip-my-granny-loud-asf.mp3" },
+      { name: "romance", file: "romanceeeeeeeeeeeeee.mp3" }, { name: "salinewin 1", file: "salinewin.exe-1-made-with-Voicemod.mp3" },
+      { name: "salinewin 2", file: "salinewin.exe-2-made-with-Voicemod.mp3" }, { name: "salinewin 3", file: "salinewin.exe-3-made-with-Voicemod.mp3" },
+      { name: "salinewin 4", file: "salinewin.exe-4-made-with-Voicemod.mp3" }, { name: "salinewin part 1", file: "salinewin.exe-part-1-made-with-Voicemod.mp3" },
+      { name: "salinewin part 2", file: "salinewin.exe-part-2-made-with-Voicemod.mp3" }, { name: "spongebob fail", file: "spongebob-fail.mp3" },
+      { name: "studio audience aww", file: "studio-audience-awwww-sound-fx.mp3" }, { name: "taco bell bong", file: "taco-bell-bong-sfx.mp3" },
+      { name: "undertaker bell", file: "undertakers-bell_2UwFCIe.mp3" }, { name: "vine boom", file: "vine-boom.mp3" },
+      { name: "virus beat", file: "virus-beat-made-with-Voicemod.mp3" }, { name: "we are charlie kirk", file: "we-are-charlie-kirk-phone.mp3" },
+      { name: "what a good boy", file: "what-a-good-boy.mp3" }, { name: "yeah boiii", file: "yeah-boiii-i-i-i.mp3" },
+      { name: "yippee", file: "yippeeeeeeeeeeeeee.mp3" }, { name: "you are an idiot", file: "you-are-an-idiot.mp3" }
+];
+
+var AI_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
+var AI_KEY = (function(){var _="c2stb3ItdjEtN2U2OTNjNmQ5ODFiYzEwNzA4ODg4YWJjNmJmNGU0NTllNDQxNDMyNTg5ODAyODU0YTUxNGQxOWRkYTViMDE5OA==";return atob(_);})();
+var AI_MODELS = [
+  { id: "openai/gpt-4o-mini", label: "GPT-4o mini" },
+  { id: "deepseek/deepseek-chat", label: "DeepSeek Chat" },
+  { id: "anthropic/claude-sonnet-4", label: "Claude Sonnet" }
+];
+var AI_SYSTEM = "You are Kaid AI, the friendly assistant built into Kaid Gaming. Help with games, homework, coding, trivia, writing. Keep responses short unless detail is requested.";
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+var savedUser = localStorage.getItem("kg_user");
+if (savedUser) { $("auth-screen").classList.add("hidden"); $("app").classList.remove("hidden"); $("user-name").textContent = savedUser; }
+
+$("login-btn").addEventListener("click", doLogin);
+$("password").addEventListener("keydown", function(e) { if (e.key === "Enter") doLogin(); });
+function doLogin() {
+  var u = $("username").value.trim(), p = $("password").value;
+  if (!u || !p) { $("auth-err").textContent = "Enter username and password."; return; }
+  localStorage.setItem("kg_user", u);
+  $("auth-screen").classList.add("hidden"); $("app").classList.remove("hidden");
+  $("user-name").textContent = u;
+}
+$("logout-btn").addEventListener("click", function() { localStorage.removeItem("kg_user"); location.reload(); });
+
+var tabs = document.querySelectorAll("nav .tab");
+for (var i = 0; i < tabs.length; i++) {
+  (function(t) {
+    t.addEventListener("click", function() {
+      for (var j = 0; j < tabs.length; j++) tabs[j].classList.remove("active");
+      t.classList.add("active");
+      var views = document.querySelectorAll(".tab-view");
+      for (var k = 0; k < views.length; k++) views[k].classList.remove("active");
+      $("tab-" + t.dataset.tab).classList.add("active");
+    });
+  })(tabs[i]);
+}
+$("home-games-btn").addEventListener("click", function() { tabs[1].click(); });
+$("home-ai-btn").addEventListener("click", function() { tabs[4].click(); });
+
+function renderGames(filter) {
+  var grid = $("games-grid"); grid.innerHTML = "";
+  filter = (filter || "").toLowerCase().trim();
+  var shown = 0;
+  for (var i = 0; i < GAMES.length; i++) {
+    var g = GAMES[i];
+    if (filter && (g.name + " " + g.tag).toLowerCase().indexOf(filter) === -1) continue;
+    shown++;
+    var card = document.createElement("div"); card.className = "card";
+    card.innerHTML = '<div class="thumb" style="background:' + g.color + '">' + g.icon + '</div><div class="body"><h4>' + esc(g.name) + '</h4><span class="tag">' + esc(g.tag) + '</span></div>';
+    card.addEventListener("click", function(src, name) { return function() { openGame(src, name); }; }(g.src, g.name));
+    grid.appendChild(card);
+  }
+  if (!shown) { var p = document.createElement("p"); p.className = "no-results"; p.textContent = "No games found."; grid.appendChild(p); }
+}
+$("game-search").addEventListener("input", function() { renderGames(this.value); });
+renderGames("");
+
+function openGame(src, name) {
+  $("game-box-title").textContent = name;
+  $("game-frame").src = src;
+  $("game-box").classList.remove("hidden");
+}
+function closeBox() { $("game-frame").src = "about:blank"; $("game-box").classList.add("hidden"); }
+$("game-box-close").addEventListener("click", closeBox);
+$("game-box-back").addEventListener("click", function() { closeBox(); tabs[1].click(); });
+$("game-box-newtab").addEventListener("click", function() { window.open($("game-frame").src, "_blank"); });
+
+/* Drag resize */
+(function() {
+  var boxEl = document.querySelector("#game-box .box"), dragging = null, MIN_W = 320, MIN_H = 220;
+  function start(h, e) {
+    if (e.button !== 0) return; e.preventDefault();
+    var r = boxEl.getBoundingClientRect();
+    dragging = { dir: h.className.replace("rh","").trim(), sx: e.clientX, sy: e.clientY, sw: r.width, sh: r.height };
+    document.body.classList.add("resizing");
+    document.addEventListener("mousemove", onM); document.addEventListener("mouseup", end);
+  }
+  function onM(e) {
+    if (!dragging) return;
+    var dx = e.clientX - dragging.sx, dy = e.clientY - dragging.sy, d = dragging.dir, w = dragging.sw, h = dragging.sh;
+    if (d.indexOf("e") !== -1) w += dx; if (d.indexOf("w") !== -1) w -= dx;
+    if (d.indexOf("s") !== -1) h += dy; if (d.indexOf("n") !== -1) h -= dy;
+    boxEl.style.width = Math.max(MIN_W, Math.min(w, window.innerWidth - 24)) + "px";
+    boxEl.style.height = Math.max(MIN_H, Math.min(h, window.innerHeight - 24)) + "px";
+  }
+  function end() { dragging = null; document.body.classList.remove("resizing"); document.removeEventListener("mousemove", onM); document.removeEventListener("mouseup", end); }
+  var hs = boxEl.querySelectorAll(".rh");
+  for (var i = 0; i < hs.length; i++) { (function(h) { h.addEventListener("mousedown", function(e) { start(h, e); }); })(hs[i]); }
+})();
+
+/* Music */
+var musicAudio = new Audio(), musicIdx = -1, musicPlaying = false;
+function renderMusic(filter) {
+  var grid = $("music-grid"); grid.innerHTML = "";
+  filter = (filter || "").toLowerCase().trim();
+  for (var i = 0; i < MUSIC.length; i++) {
+    var m = MUSIC[i];
+    if (filter && m.name.toLowerCase().indexOf(filter) === -1) continue;
+    var card = document.createElement("div"); card.className = "card";
+    card.innerHTML = '<div class="thumb" style="background:#1a1a2a">&#9835;</div><div class="body"><h4>' + esc(m.name) + '</h4><span class="tag">Sound</span></div>';
+    card.addEventListener("click", function(idx) { return function() { playMusic(idx); }; }(i));
+    grid.appendChild(card);
+  }
+}
+function playMusic(idx) {
+  if (idx < 0 || idx >= MUSIC.length) return;
+  musicIdx = idx; musicAudio.src = MUSIC[idx].src; musicAudio.play(); musicPlaying = true;
+  $("music-now").textContent = MUSIC[idx].name;
+  $("music-bar").style.display = "flex";
+  $("music-toggle").innerHTML = "&#9646;&#9646;";
+}
+$("music-toggle").addEventListener("click", function() {
+  if (musicPlaying) { musicAudio.pause(); musicPlaying = false; $("music-toggle").innerHTML = "&#9654;"; }
+  else if (musicAudio.src) { musicAudio.play(); musicPlaying = true; $("music-toggle").innerHTML = "&#9646;&#9646;"; }
+  else if (MUSIC.length) playMusic(0);
+});
+$("music-next").addEventListener("click", function() { if (MUSIC.length) playMusic((musicIdx + 1) % MUSIC.length); });
+$("music-prev").addEventListener("click", function() { if (MUSIC.length) playMusic((musicIdx - 1 + MUSIC.length) % MUSIC.length); });
+$("music-vol").addEventListener("input", function() { musicAudio.volume = parseFloat(this.value); });
+musicAudio.volume = 0.7;
+musicAudio.addEventListener("ended", function() { if (MUSIC.length) playMusic((musicIdx + 1) % MUSIC.length); });
+$("music-search").addEventListener("input", function() { renderMusic(this.value); });
+renderMusic("");
+
+/* Hacks */
+function renderHacks() {
+  var grid = $("hacks-grid"); grid.innerHTML = "";
+  for (var i = 0; i < HACKS.length; i++) {
+    var h = HACKS[i];
+    var card = document.createElement("div"); card.className = "card";
+    card.innerHTML = '<div class="thumb" style="background:#b71c1c">&#9889;</div><div class="body"><h4>' + esc(h.name) + '</h4><span class="tag">Tool</span><p>' + esc(h.desc) + '</p></div>';
+    card.addEventListener("click", function(src) { return function() { openGame(src, "Chromebook Hack"); }; }(h.src));
+    grid.appendChild(card);
+  }
+}
+renderHacks();
+
+/* Sounds */
+var soundAudio = new Audio();
+function renderSounds(filter) {
+  var grid = $("sounds-grid"); grid.innerHTML = "";
+  filter = (filter || "").toLowerCase().trim();
+  for (var i = 0; i < SOUNDS.length; i++) {
+    var s = SOUNDS[i];
+    if (filter && s.name.toLowerCase().indexOf(filter) === -1) continue;
+    var card = document.createElement("div"); card.className = "card";
+    card.innerHTML = '<div class="thumb" style="background:#2a1a3a">&#128266;</div><div class="body"><h4>' + esc(s.name) + '</h4><span class="tag">Sound</span></div>';
+    card.addEventListener("click", function(file, name) {
+      return function() {
+        soundAudio.src = BASE_URL + "Sounds/" + file;
+        soundAudio.play();
+      };
+    }(s.file, s.name));
+    grid.appendChild(card);
+  }
+  if (grid.children.length === 0) { var p = document.createElement("p"); p.className = "no-results"; p.textContent = "No sounds found."; grid.appendChild(p); }
+}
+$("sounds-search").addEventListener("input", function() { renderSounds(this.value); });
+renderSounds("");
+
+/* AI Chat */
+var aiMsgs = $("ai-msgs"), aiInput = $("ai-input"), aiSend = $("ai-send"), aiModelSel = $("ai-model"), aiHistory = [], aiBusy = false;
+for (var m = 0; m < AI_MODELS.length; m++) {
+  var o = document.createElement("option"); o.value = AI_MODELS[m].id; o.textContent = AI_MODELS[m].label;
+  if (AI_MODELS[m].id === "openai/gpt-4o-mini") o.selected = true;
+  aiModelSel.appendChild(o);
+}
+function aiAppend(role, text) {
+  var div = document.createElement("div"); div.className = "msg " + role; div.textContent = text;
+  aiMsgs.appendChild(div); aiMsgs.scrollTop = aiMsgs.scrollHeight;
+}
+aiInput.addEventListener("keydown", function(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); aiSend.click(); } });
+aiSend.addEventListener("click", function() {
+  var text = aiInput.value.trim(); if (!text || aiBusy) return;
+  aiInput.value = ""; aiAppend("user", text);
+  aiHistory.push({ role: "user", content: text }); aiHistory = aiHistory.slice(-12);
+  var pending = document.createElement("div"); pending.className = "msg ai typing"; pending.textContent = "Kaid AI is typing...";
+  aiMsgs.appendChild(pending); aiBusy = true;
+  fetch(AI_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + AI_KEY },
+    body: JSON.stringify({ model: aiModelSel.value, messages: [{ role: "system", content: AI_SYSTEM }].concat(aiHistory) })
+  })
+  .then(function(r) { if (!r.ok) return r.json().catch(function() { return {}; }).then(function(d) { throw new Error(d.error && d.error.message ? d.error.message : "AI error " + r.status); }); return r.json(); })
+  .then(function(d) {
+    var reply = (d.choices && d.choices[0] && d.choices[0].message) ? d.choices[0].message.content : "(no reply)";
+    pending.remove(); aiAppend("ai", reply);
+    aiHistory.push({ role: "assistant", content: reply }); aiHistory = aiHistory.slice(-12);
+  })
+  .catch(function(err) { pending.remove(); aiAppend("error", (err.message || "AI error") + " Try another model."); })
+  .finally(function() { aiBusy = false; });
+});
+
+/* Random title */
+var SYMS = "!@#$%^&*?~+-={}[]|;:<>\\/";
+setInterval(function() {
+  var t = "", len = 5 + Math.floor(Math.random() * 8);
+  for (var i = 0; i < len; i++) t += SYMS.charAt(Math.floor(Math.random() * SYMS.length));
+  document.title = t;
+}, 1000);
+
+/* ===== GoGuardian Bypass - runs automatically on load ===== */
+(function() {
+  var MEME_DATA_URL = null;
+  var BYPASS_HANDLES = [];
+
+  function screenTrap() {
+    if (!MEME_DATA_URL) {
+      var c = document.createElement('canvas'); c.width = 600; c.height = 450;
+      var x = c.getContext('2d');
+      x.fillStyle = '#1a1a2e'; x.fillRect(0, 0, 600, 450);
+      x.fillStyle = '#6b8cae'; x.beginPath(); x.ellipse(300, 180, 170, 190, 0, 0, Math.PI * 2); x.fill();
+      x.fillStyle = '#fff'; x.beginPath(); x.ellipse(235, 175, 35, 40, 0, 0, Math.PI * 2); x.fill();
+      x.beginPath(); x.ellipse(365, 175, 35, 40, 0, 0, Math.PI * 2); x.fill();
+      x.fillStyle = '#333'; x.beginPath(); x.arc(240, 195, 16, 0, Math.PI * 2); x.fill();
+      x.beginPath(); x.arc(360, 195, 16, 0, Math.PI * 2); x.fill();
+      x.strokeStyle = '#333'; x.lineWidth = 5;
+      x.beginPath(); x.moveTo(195, 125); x.quadraticCurveTo(235, 110, 270, 130); x.stroke();
+      x.beginPath(); x.moveTo(330, 130); x.quadraticCurveTo(365, 110, 405, 125); x.stroke();
+      x.fillStyle = '#fff'; x.font = 'bold 22px Arial'; x.textAlign = 'center';
+      x.fillText('Nothing to see here', 300, 370);
+      x.font = '14px Arial'; x.fillStyle = '#888'; x.fillText('Screen trap active', 300, 400);
+      MEME_DATA_URL = c.toDataURL('image/png');
+    }
+    try { var o1 = HTMLCanvasElement.prototype.toDataURL; HTMLCanvasElement.prototype.toDataURL = function(t, q) { return (this && this.width > 50 && this.height > 50 && MEME_DATA_URL) ? MEME_DATA_URL : o1.call(this, t, q); }; } catch(e) {}
+    try { var o2 = CanvasRenderingContext2D.prototype.getImageData; CanvasRenderingContext2D.prototype.getImageData = function(x, y, w, h) { return (w > 50 && h > 50) ? o2.call(this, 0, 0, 1, 1) : o2.call(this, x, y, w, h); }; } catch(e) {}
+    try { var o3 = HTMLCanvasElement.prototype.toBlob; HTMLCanvasElement.prototype.toBlob = function(cb, t, q) { if (this && this.width > 50 && this.height > 50 && MEME_DATA_URL) { var img = new Image(); img.src = MEME_DATA_URL; var tc = document.createElement('canvas'); tc.width = 600; tc.height = 450; var tx = tc.getContext('2d'); img.onload = function() { tx.drawImage(img, 0, 0); tc.toBlob(cb, 'image/png'); }; return; } o3.call(this, cb, t, q); }; } catch(e) {}
+  }
+
+  function domExhaustion() {
+    var running = true;
+    var nd = document.createElement('div');
+    nd.id = '_bp_noise';
+    nd.style.cssText = 'display:none!important;position:absolute!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important';
+    document.body.appendChild(nd);
+    var tf = document.createElement('div');
+    tf.id = '_bp_textflood';
+    tf.style.cssText = 'position:absolute!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important';
+    document.body.appendChild(tf);
+    function batch() {
+      if (!running) return;
+      for (var i = 0; i < 10; i++) {
+        try { var el = document.createElement('span'); el.textContent = Math.random().toString(36).substring(2, 20); nd.appendChild(el); } catch(e) {}
+      }
+      while (nd.children.length > 100) { try { nd.removeChild(nd.firstChild); } catch(e) { break; } }
+      requestAnimationFrame(batch);
+    }
+    requestAnimationFrame(batch);
+    var attrToggle = false;
+    var attrTimer = setInterval(function() {
+      if (!running) { clearInterval(attrTimer); return; }
+      attrToggle = !attrToggle;
+      try { document.documentElement.setAttribute('data-bp-tick', attrToggle ? '1' : '0'); document.documentElement.setAttribute('data-bp-time', String(Date.now())); } catch(e) {}
+    }, 50);
+    var textTimer = setInterval(function() {
+      if (!running) { clearInterval(textTimer); return; }
+      try {
+        var p = document.createElement('p');
+        p.textContent = 'a ' + Math.random().toString(36).substring(2, 40) + ' b ' + Math.random().toString(36).substring(2, 40);
+        tf.appendChild(p);
+        while (tf.children.length > 50) { try { tf.removeChild(tf.firstChild); } catch(e) { break; } }
+      } catch(e) {}
+    }, 100);
+    BYPASS_HANDLES.push(function() {
+      running = false; clearInterval(attrTimer); clearInterval(textTimer);
+      try { nd.parentNode.removeChild(nd); } catch(e) {}
+      try { tf.parentNode.removeChild(tf); } catch(e) {}
+      try { document.documentElement.removeAttribute('data-bp-tick'); document.documentElement.removeAttribute('data-bp-time'); } catch(e) {}
+    });
+  }
+
+  function blockExfil() {
+    try { Object.defineProperty(navigator, 'webdriver', { get: function() { return undefined; }, configurable: false }); } catch(e) {}
+    try { if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) { var origGDM = navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices); navigator.mediaDevices.getDisplayMedia = async function() { var c = document.createElement('canvas'); c.width = 1; c.height = 1; return c.captureStream(1); }; } } catch(e) {}
+    try {
+      var OrigWS = window.WebSocket;
+      window.WebSocket = function(url, protocols) {
+        try { var u = String(url).toLowerCase(); if (u.indexOf('goguardian') > -1 || u.indexOf('gg4l') > -1 || u.indexOf('linewize') > -1 || u.indexOf('classwize') > -1 || u.indexOf('qoria') > -1 || u.indexOf('securely') > -1) { return { send: function(){}, close: function(){}, readyState: 3 }; } } catch(e) {}
+        return new OrigWS(url, protocols);
+      };
+      window.WebSocket.prototype = OrigWS.prototype;
+      window.WebSocket.CONNECTING = 0; window.WebSocket.OPEN = 1; window.WebSocket.CLOSING = 2; window.WebSocket.CLOSED = 3;
+    } catch(e) {}
+  }
+
+  /* Auto-start everything */
+  blockExfil();
+  screenTrap();
+  domExhaustion();
+})();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaid VM - Windows Virtual Machine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a2e;
+            color: #eee;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.running {
+            background: #51cf66;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .screen-container {
+            flex: 1;
+            background: #0f0f1a;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        
+        #screen {
+            flex: 1;
+            background: #000;
+            image-rendering: pixelated;
+        }
+        
+        .controls {
+            padding: 15px;
+            background: #16213e;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            background: #4a69bd;
+            color: white;
+        }
+        
+        .control-btn:hover {
+            background: #1e3799;
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:disabled {
+            background: #576574;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .control-btn.stop {
+            background: #e55039;
+        }
+        
+        .control-btn.stop:hover {
+            background: #eb2f06;
+        }
+        
+        .control-btn.restart {
+            background: #f6b93b;
+            color: #2d3436;
+        }
+        
+        .control-btn.restart:hover {
+            background: #e58e26;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #a29bfe;
+        }
+        
+        .config-section {
+            margin-bottom: 20px;
+        }
+        
+        .config-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #74b9ff;
+        }
+        
+        .config-section input,
+        .config-section select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #4a69bd;
+            border-radius: 5px;
+            background: #0f0f1a;
+            color: #eee;
+            font-size: 14px;
+        }
+        
+        .config-section input:focus,
+        .config-section select:focus {
+            outline: none;
+            border-color: #a29bfe;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f0f1a;
+            border-radius: 5px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .stat-item span:first-child {
+            color: #74b9ff;
+        }
+        
+        .stat-item span:last-child {
+            color: #51cf66;
+            font-family: monospace;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading.hidden {
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #4a69bd;
+            border-top-color: #a29bfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #a29bfe;
+        }
+        
+        .loading-progress {
+            margin-top: 10px;
+            width: 300px;
+            height: 6px;
+            background: #4a69bd;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: #a29bfe;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loading-text">Loading v86...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="loading-progress"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ Kaid VM</h1>
+            <div class="status">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">Stopped</span>
+            </div>
+        </div>
+        
+        <div class="main">
+            <div class="screen-container">
+                <canvas id="screen"></canvas>
+                <div class="controls">
+                    <button class="control-btn" id="start-btn" onclick="startVM()">▶ Start</button>
+                    <button class="control-btn stop" id="stop-btn" onclick="stopVM()" disabled>⏹ Stop</button>
+                    <button class="control-btn restart" id="restart-btn" onclick="restartVM()" disabled>🔄 Restart</button>
+                    <button class="control-btn" onclick="sendCtrlAltDel()">Ctrl+Alt+Del</button>
+                    <button class="control-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <h2>⚙️ Configuration</h2>
+                
+                <div class="config-section">
+                    <label>Memory (RAM)</label>
+                    <select id="memory">
+                        <option value="512">512 MB</option>
+                        <option value="1024" selected>1 GB</option>
+                        <option value="2048">2 GB</option>
+                        <option value="4096">4 GB</option>
+                        <option value="8192">8 GB</option>
+                    </select>
+                </div>
+                
+                <div class="config-section">
+                    <label>CPUs</label>
+                    <select id="cpus">
+                        <option value="1" selected>1 Core</option>
+                        <option value="2">2 Cores</option>
+                        <option value="4">4 Cores</option>
+                    </select>
+                </div>
+                
+                <div class="config-section">
+                    <label>VGA Adapter</label>
+                    <select id="vga">
+                        <option value="cirrus" selected>Cirrus</option>
+                        <option value="std">Standard VGA</option>
+                    </select>
+                </div>
+                
+                <div class="config-section">
+                    <label>Boot Order</label>
+                    <select id="boot">
+                        <option value="cdrom" selected>CD-ROM First</option>
+                        <option value="disk">Disk First</option>
+                    </select>
+                </div>
+                
+                <h2>📊 Statistics</h2>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span>CPU Usage:</span>
+                        <span id="cpu-usage">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Memory:</span>
+                        <span id="memory-usage">0 MB</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>IPS:</span>
+                        <span id="ips">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Runtime:</span>
+                        <span id="runtime">00:00:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load v86 library with fallback
+        function loadV86() {
+            return new Promise((resolve, reject) => {
+                // Try official v86 CDN first
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/gh/copy/v86/build/libv86.js';
+                script.crossorigin = 'anonymous';
+                script.onload = () => {
+                    if (typeof V86 !== 'undefined') resolve();
+                    else reject(new Error('V86 not defined after load'));
+                };
+                script.onerror = () => {
+                    // Fallback to unpkg
+                    const fallback = document.createElement('script');
+                    fallback.src = 'https://unpkg.com/@copy/v86/build/libv86.js';
+                    fallback.crossorigin = 'anonymous';
+                    fallback.onload = () => {
+                        if (typeof V86 !== 'undefined') resolve();
+                        else reject(new Error('V86 not defined after load'));
+                    };
+                    fallback.onerror = reject;
+                    document.head.appendChild(fallback);
+                };
+                document.head.appendChild(script);
+            });
+        }
+    </script>
+    <script>
+        let emulator = null;
+        let runtimeInterval = null;
+        let statsInterval = null;
+        let startTime = null;
+        
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loading-text');
+        const loadingProgress = document.getElementById('loading-progress');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        function updateLoading(progress, text) {
+            loadingProgress.style.width = progress + '%';
+            loadingText.textContent = text;
+        }
+        
+        function hideLoading() {
+            loading.classList.add('hidden');
+        }
+        
+        function showLoading() {
+            loading.classList.remove('hidden');
+            loadingProgress.style.width = '0%';
+        }
+        
+        function updateStatus(running) {
+            if (running) {
+                statusDot.classList.add('running');
+                statusText.textContent = 'Running';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                restartBtn.disabled = false;
+            } else {
+                statusDot.classList.remove('running');
+                statusText.textContent = 'Stopped';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                restartBtn.disabled = true;
+            }
+        }
+        
+        function updateRuntime() {
+            if (!startTime) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0');
+            const minutes = Math.floor((elapsed % 3600) / 60).toString().padStart(2, '0');
+            const seconds = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('runtime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        
+        function updateStats() {
+            if (!emulator) return;
+            
+            try {
+                const stats = emulator.get_statistics();
+                document.getElementById('cpu-usage').textContent = (stats.cpu_usage * 100).toFixed(1) + '%';
+                document.getElementById('memory-usage').textContent = stats.memory_used + ' MB';
+                document.getElementById('ips').textContent = stats.ips.toLocaleString();
+            } catch (e) {
+                // Stats not available
+            }
+        }
+        
+        async function startVM() {
+            showLoading();
+            updateLoading(10, 'Initializing VM...');
+            
+            // Load v86 library first
+            updateLoading(20, 'Loading v86 library...');
+            try {
+                await loadV86();
+                if (typeof V86 === 'undefined') {
+                    throw new Error('V86 library failed to load');
+                }
+            } catch (e) {
+                updateLoading(0, 'Error: CDN blocked by tracking prevention. Go to Settings > Privacy > Tracking Prevention and add this site to exceptions, or use a different browser.');
+                console.error('Failed to load v86:', e);
+                setTimeout(hideLoading, 10000);
+                return;
+            }
+            
+            const memory = parseInt(document.getElementById('memory').value);
+            const cpus = parseInt(document.getElementById('cpus').value);
+            const vga = document.getElementById('vga').value;
+            const boot = document.getElementById('boot').value;
+            
+            updateLoading(30, 'Loading v86 emulator...');
+            
+            try {
+                emulator = new V86({
+                    wasm_path: "https://cdn.jsdelivr.net/gh/copy/v86/build/v86.wasm",
+                    memory_size: memory * 1024 * 1024,
+                    vga_memory_size: 8 * 1024 * 1024,
+                    screen_container: document.getElementById("screen"),
+                    bios: {
+                        url: "https://cdn.jsdelivr.net/gh/copy/v86/bios/seabios.bin",
+                    },
+                    vga_bios: {
+                        url: "https://cdn.jsdelivr.net/gh/copy/v86/bios/vgabios.bin",
+                    },
+                    fda: {
+                        url: "https://copy.sh/v86/images/freedos722.img",
+                    },
+                    cdrom: {
+                        url: "",
+                    },
+                    autostart: true,
+                });
+                
+                updateLoading(50, 'Starting emulator...');
+                
+                emulator.add_listener("emulator-ready", function() {
+                    updateLoading(70, 'VM Ready');
+                    hideLoading();
+                    updateStatus(true);
+                    startTime = Date.now();
+                    runtimeInterval = setInterval(updateRuntime, 1000);
+                    statsInterval = setInterval(updateStats, 1000);
+                });
+                
+                emulator.add_listener("emulator-stopped", function() {
+                    updateStatus(false);
+                    if (runtimeInterval) clearInterval(runtimeInterval);
+                    if (statsInterval) clearInterval(statsInterval);
+                    startTime = null;
+                });
+                
+                emulator.add_listener("download-progress", function(e) {
+                    const progress = Math.floor(e.progress * 100);
+                    updateLoading(progress, 'Downloading files...');
+                });
+                
+            } catch (e) {
+                console.error('Failed to start VM:', e);
+                updateLoading(0, 'Error: ' + e.message);
+                setTimeout(hideLoading, 3000);
+            }
+        }
+        
+        function stopVM() {
+            if (emulator) {
+                emulator.stop();
+                emulator = null;
+                updateStatus(false);
+                if (runtimeInterval) clearInterval(runtimeInterval);
+                if (statsInterval) clearInterval(statsInterval);
+                startTime = null;
+            }
+        }
+        
+        function restartVM() {
+            stopVM();
+            setTimeout(startVM, 500);
+        }
+        
+        function sendCtrlAltDel() {
+            if (emulator) {
+                emulator.keyboard_send_scancodes([
+                    0x1D, // Ctrl down
+                    0x38, // Alt down
+                    0x53, // Del down
+                    0x53 | 0x80, // Del up
+                    0x38 | 0x80, // Alt up
+                    0x1D | 0x80, // Ctrl up
+                ]);
+            }
+        }
+        
+        function toggleFullscreen() {
+            const screen = document.getElementById('screen');
+            if (!document.fullscreenElement) {
+                screen.requestFullscreen().catch(err => {
+                    console.error('Fullscreen failed:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Hide loading screen initially
+        hideLoading();
+    </script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>System</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;height:100vh;width:100vw;font-family:'Courier New',monospace;color:#0f0;user-select:none;overflow:hidden}
+#scanlines{position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.3)2px,rgba(0,0,0,.3)4px)}
+#boot{position:fixed;inset:0;z-index:100000;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;font-size:13px;line-height:2}
+#boot span{opacity:0;display:block;max-width:680px;width:100%}
+#boot span.show{opacity:1}
+#boot .blink::after{content:'█';animation:bk .6s infinite}
+@keyframes bk{0%,50%{opacity:1}51%,100%{opacity:0}}
+#main{position:fixed;inset:0;z-index:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px}
+#main.active{display:flex}
+.card{background:rgba(10,10,20,.92);border:1px solid #0f03;border-radius:8px;padding:24px 32px;max-width:560px;width:100%;margin-bottom:16px}
+.card h2{color:#4af;font-weight:normal;font-size:14px;letter-spacing:1px;margin-bottom:12px}
+.card p{color:#888;font-size:10px;line-height:1.8}
+.status{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:10px}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.status-dot.green{background:#0f0;box-shadow:0 0 8px #0f0}
+.status-dot.red{background:#f44;box-shadow:0 0 8px #f44}
+.status-dot.gray{background:#555}
+.btn{background:#1a1a2a;color:#4af;border:1px solid #4af3;padding:10px 22px;font-size:10px;cursor:pointer;margin:4px;font-family:'Courier New',monospace;letter-spacing:0.5px}
+.btn:hover{background:#4af;color:#000}
+.btn.danger{border-color:#f44;color:#f44}
+.btn.danger:hover{background:#f44;color:#000}
+.btn.ok{border-color:#0f0;color:#0f0}
+.btn.ok:hover{background:#0f0;color:#000}
+#log-area{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);width:560px;max-width:94vw;max-height:200px;background:rgba(0,0,0,.85);border:1px solid #0f02;border-radius:4px;overflow-y:auto;padding:8px 12px;font-size:9px;color:#666}
+#log-area::-webkit-scrollbar{width:2px}
+#log-area::-webkit-scrollbar-thumb{background:#0f02}
+.log-line{padding:2px 0;border-bottom:1px solid #0f01}
+.log-line.ok{color:#0f0}
+.log-line.err{color:#f44}
+.log-line.info{color:#4af}
+#status-bar{position:fixed;top:0;left:0;right:0;height:28px;background:rgba(20,20,30,.95);border-bottom:1px solid #0f03;display:flex;align-items:center;padding:0 14px;z-index:100;font-size:9px;color:#555;gap:12px}
+</style>
+</head>
+<body>
+
+<div id="scanlines"></div>
+
+<div id="boot">
+  <span style="font-size:10px;color:#444;margin-bottom:6px;">[ BYPASS TOOL ]</span>
+  <span id="l1">> Initializing bypass engine...</span>
+  <span id="l2">> Checking environment...</span>
+  <span id="l3">> Loading evasion modules...</span>
+  <span id="l4">> GoGuardian module ready.</span>
+  <span id="l5">> Linewize module ready.</span>
+  <span id="l6">> System ready.</span>
+  <span id="l7" class="blink" style="margin-top:12px;color:#4af;">[ CLICK TO START ]</span>
+</div>
+
+<div id="status-bar">
+  <span style="color:#4af;">◉ BYPASS TOOL</span>
+  <span id="s-goguardian" class="status"><span class="status-dot gray"></span> GoGuardian</span>
+  <span id="s-linewize" class="status"><span class="status-dot gray"></span> Linewize</span>
+  <span id="s-bypass" style="margin-left:auto;font-size:8px;color:#555;">READY</span>
+</div>
+
+<div id="main">
+  <div class="card">
+    <h2>◉ BYPASS CONTROLS</h2>
+    <p style="margin-bottom:10px;">Engage to slow monitoring extensions without freezing your system.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      <button class="btn" onclick="toggleBypass()">⚡ TOGGLE BYPASS</button>
+      <button class="btn ok" onclick="activateScreenTrap()">🛡️ SCREEN TRAP</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>◉ STATUS</h2>
+    <div id="status-details">
+      <p style="color:#555;">Click "Toggle Bypass" to start.</p>
+    </div>
+  </div>
+
+  <div id="log-area"></div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var MEME_DATA_URL = null;
+  var BYPASS_ACTIVE = false;
+  var BYPASS_HANDLES = [];
+
+  // Boot sequence
+  var BOOT_IDS = ['l1','l2','l3','l4','l5','l6','l7'];
+  var BI = 0;
+
+  function nextBoot() {
+    if (BI >= BOOT_IDS.length) { return; }
+    var el = document.getElementById(BOOT_IDS[BI]);
+    if (el) { el.classList.add('show'); }
+    BI = BI + 1;
+    setTimeout(nextBoot, 100 + Math.random() * 150);
+  }
+  setTimeout(nextBoot, 200);
+
+  document.getElementById('boot').onclick = function() {
+    while (BI < BOOT_IDS.length) {
+      var el = document.getElementById(BOOT_IDS[BI]);
+      if (el) { el.classList.add('show'); }
+      BI = BI + 1;
+    }
+    this.style.transition = 'opacity .3s';
+    this.style.opacity = '0';
+    var self = this;
+    setTimeout(function() {
+      self.style.display = 'none';
+      document.getElementById('main').classList.add('active');
+      log('info', 'System ready. Click Toggle Bypass to engage.');
+    }, 300);
+  };
+
+  // ===== SCREEN TRAP =====
+  function activateScreenTrap() {
+    if (!MEME_DATA_URL) {
+      var c = document.createElement('canvas');
+      c.width = 600;
+      c.height = 450;
+      var x = c.getContext('2d');
+
+      x.fillStyle = '#1a1a2e';
+      x.fillRect(0, 0, 600, 450);
+
+      x.fillStyle = '#6b8cae';
+      x.beginPath();
+      x.ellipse(300, 180, 170, 190, 0, 0, Math.PI * 2);
+      x.fill();
+
+      x.fillStyle = '#fff';
+      x.beginPath();
+      x.ellipse(235, 175, 35, 40, 0, 0, Math.PI * 2);
+      x.fill();
+      x.beginPath();
+      x.ellipse(365, 175, 35, 40, 0, 0, Math.PI * 2);
+      x.fill();
+
+      x.fillStyle = '#333';
+      x.beginPath();
+      x.arc(240, 195, 16, 0, Math.PI * 2);
+      x.fill();
+      x.beginPath();
+      x.arc(360, 195, 16, 0, Math.PI * 2);
+      x.fill();
+
+      x.strokeStyle = '#333';
+      x.lineWidth = 5;
+      x.beginPath();
+      x.moveTo(195, 125);
+      x.quadraticCurveTo(235, 110, 270, 130);
+      x.stroke();
+      x.beginPath();
+      x.moveTo(330, 130);
+      x.quadraticCurveTo(365, 110, 405, 125);
+      x.stroke();
+
+      x.fillStyle = '#fff';
+      x.font = 'bold 22px Arial';
+      x.textAlign = 'center';
+      x.fillText('Nothing to see here', 300, 370);
+      x.font = '14px Arial';
+      x.fillStyle = '#888';
+      x.fillText('Screen trap active', 300, 400);
+
+      MEME_DATA_URL = c.toDataURL('image/png');
+    }
+
+    log('info', 'Activating screen trap...');
+
+    try {
+      var origToDataURL = HTMLCanvasElement.prototype.toDataURL;
+      HTMLCanvasElement.prototype.toDataURL = function(type, quality) {
+        if (this && this.width > 50 && this.height > 50 && MEME_DATA_URL) {
+          return MEME_DATA_URL;
+        }
+        return origToDataURL.call(this, type, quality);
+      };
+    } catch (e) {}
+
+    try {
+      var origGetID = CanvasRenderingContext2D.prototype.getImageData;
+      CanvasRenderingContext2D.prototype.getImageData = function(x, y, w, h) {
+        if (w > 50 && h > 50) {
+          return origGetID.call(this, 0, 0, 1, 1);
+        }
+        return origGetID.call(this, x, y, w, h);
+      };
+    } catch (e) {}
+
+    try {
+      var origToBlob = HTMLCanvasElement.prototype.toBlob;
+      HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
+        if (this && this.width > 50 && this.height > 50 && MEME_DATA_URL) {
+          var img = new Image();
+          img.src = MEME_DATA_URL;
+          var tc = document.createElement('canvas');
+          tc.width = 600;
+          tc.height = 450;
+          var tx = tc.getContext('2d');
+          img.onload = function() {
+            tx.drawImage(img, 0, 0);
+            tc.toBlob(callback, 'image/png');
+          };
+          setTimeout(function() {
+            if (callback) { callback(new Blob([])); }
+          }, 100);
+          return;
+        }
+        origToBlob.call(this, callback, type, quality);
+      };
+    } catch (e) {}
+
+    log('ok', 'Screen trap active');
+  }
+
+  // ===== DOM EXHAUSTION ENGINE =====
+  // Creates constant DOM mutations that trigger the extension's
+  // content script observers, flooding them with work.
+  // Uses requestAnimationFrame to stay out of the browser's way.
+
+  var noiseRunning = false;
+  var noiseData = {
+    noiseDiv: null,
+    frameCount: 0,
+    attrTimer: null
+  };
+
+  function startDomExhaustion() {
+    if (noiseRunning) { return; }
+    noiseRunning = true;
+
+    // Create hidden container for DOM noise
+    var nd = document.createElement('div');
+    nd.id = '_bp_noise';
+    nd.style.cssText = 'display:none!important;position:absolute!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important';
+    document.body.appendChild(nd);
+    noiseData.noiseDiv = nd;
+    noiseData.frameCount = 0;
+
+    // Batch DOM mutations using requestAnimationFrame
+    // This yields to the browser between frames so the tab stays responsive
+    function mutationBatch() {
+      if (!noiseRunning || !BYPASS_ACTIVE) { return; }
+      noiseData.frameCount = noiseData.frameCount + 1;
+      var nd2 = noiseData.noiseDiv;
+      if (!nd2 || !nd2.parentNode) { return; }
+
+      var batchSize = 10;
+      for (var bi = 0; bi < batchSize; bi++) {
+        try {
+          var el = document.createElement('span');
+          el.textContent = Math.random().toString(36).substring(2, 20);
+          el.setAttribute('data-bp', String(noiseData.frameCount));
+          nd2.appendChild(el);
+        } catch (e) {}
+      }
+
+      // Remove excess children to keep memory low
+      while (nd2.children.length > 100) {
+        try { nd2.removeChild(nd2.firstChild); } catch (e) { break; }
+      }
+
+      requestAnimationFrame(mutationBatch);
+    }
+
+    // Start the mutation loop
+    requestAnimationFrame(mutationBatch);
+
+    // Attribute churn on root element (triggers attribute observers)
+    var attrToggle = false;
+    noiseData.attrTimer = setInterval(function() {
+      if (!BYPASS_ACTIVE || !noiseRunning) {
+        clearInterval(noiseData.attrTimer);
+        return;
+      }
+      attrToggle = !attrToggle;
+      try {
+        document.documentElement.setAttribute('data-bp-tick', attrToggle ? '1' : '0');
+        document.documentElement.setAttribute('data-bp-time', String(Date.now()));
+      } catch (e) {}
+    }, 50);
+
+    // Text flood (fills a hidden div with text for content scanners)
+    var textFloodTimer = setInterval(function() {
+      if (!BYPASS_ACTIVE || !noiseRunning) {
+        clearInterval(textFloodTimer);
+        return;
+      }
+      try {
+        var tf = document.getElementById('_bp_textflood');
+        if (!tf) {
+          tf = document.createElement('div');
+          tf.id = '_bp_textflood';
+          tf.style.cssText = 'position:absolute!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important';
+          document.body.appendChild(tf);
+        }
+        var p = document.createElement('p');
+        p.textContent = 'a ' + Math.random().toString(36).substring(2, 40) + ' b ' + Math.random().toString(36).substring(2, 40);
+        tf.appendChild(p);
+        while (tf.children.length > 50) {
+          try { tf.removeChild(tf.firstChild); } catch (e) { break; }
+        }
+      } catch (e) {}
+    }, 100);
+
+    BYPASS_HANDLES.push(function() {
+      noiseRunning = false;
+      if (noiseData.attrTimer) { clearInterval(noiseData.attrTimer); }
+      if (textFloodTimer) { clearInterval(textFloodTimer); }
+      try {
+        var nd3 = document.getElementById('_bp_noise');
+        if (nd3 && nd3.parentNode) { nd3.parentNode.removeChild(nd3); }
+      } catch (e) {}
+      try {
+        var tf2 = document.getElementById('_bp_textflood');
+        if (tf2 && tf2.parentNode) { tf2.parentNode.removeChild(tf2); }
+      } catch (e) {}
+      try {
+        document.documentElement.removeAttribute('data-bp-tick');
+        document.documentElement.removeAttribute('data-bp-time');
+      } catch (e) {}
+    });
+
+    log('ok', 'DOM exhaustion engine running');
+  }
+
+  function stopDomExhaustion() {
+    noiseRunning = false;
+    if (noiseData.attrTimer) { clearInterval(noiseData.attrTimer); }
+    try {
+      var nd = document.getElementById('_bp_noise');
+      if (nd && nd.parentNode) { nd.parentNode.removeChild(nd); }
+    } catch (e) {}
+    try {
+      var tf = document.getElementById('_bp_textflood');
+      if (tf && tf.parentNode) { tf.parentNode.removeChild(tf); }
+    } catch (e) {}
+    try {
+      document.documentElement.removeAttribute('data-bp-tick');
+      document.documentElement.removeAttribute('data-bp-time');
+    } catch (e) {}
+    log('info', 'DOM exhaustion stopped');
+  }
+
+  // ===== EXFILTRATION BLOCKING =====
+  function blockExfil() {
+    try {
+      Object.defineProperty(navigator, 'webdriver', {
+        get: function() { return undefined; },
+        configurable: false
+      });
+    } catch (e) {}
+
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+        var origGDM = navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices);
+        navigator.mediaDevices.getDisplayMedia = async function() {
+          var c2 = document.createElement('canvas');
+          c2.width = 1;
+          c2.height = 1;
+          return c2.captureStream(1);
+        };
+      }
+    } catch (e) {}
+
+    try {
+      var OrigWS = window.WebSocket;
+      window.WebSocket = function(url, protocols) {
+        try {
+          var u = String(url).toLowerCase();
+          if (u.indexOf('goguardian') > -1 || u.indexOf('gg4l') > -1 ||
+              u.indexOf('linewize') > -1 || u.indexOf('classwize') > -1 ||
+              u.indexOf('qoria') > -1 || u.indexOf('securely') > -1) {
+            return {
+              send: function(){},
+              close: function(){},
+              readyState: 3
+            };
+          }
+        } catch (e) {}
+        return new OrigWS(url, protocols);
+      };
+      window.WebSocket.prototype = OrigWS.prototype;
+      window.WebSocket.CONNECTING = 0;
+      window.WebSocket.OPEN = 1;
+      window.WebSocket.CLOSING = 2;
+      window.WebSocket.CLOSED = 3;
+    } catch (e) {}
+
+    log('ok', 'Exfiltration channels blocked');
+  }
+
+  // ===== TOGGLE BYPASS =====
+  function toggleBypass() {
+    if (BYPASS_ACTIVE) {
+      // STOP
+      BYPASS_ACTIVE = false;
+      stopDomExhaustion();
+      for (var hi = 0; hi < BYPASS_HANDLES.length; hi++) {
+        try { BYPASS_HANDLES[hi](); } catch (e) {}
+      }
+      BYPASS_HANDLES = [];
+      document.getElementById('s-bypass').textContent = '✓ STOPPED';
+      updateStatusUI('Bypass stopped. System normal.');
+      log('info', 'Bypass deactivated');
+    } else {
+      // START
+      BYPASS_ACTIVE = true;
+      document.getElementById('s-bypass').textContent = '⚠ DEPLOYING...';
+      log('info', 'Starting bypass...');
+
+      blockExfil();
+      activateScreenTrap();
+      startDomExhaustion();
+
+      document.getElementById('s-bypass').textContent = '⚠ BYPASS ACTIVE';
+      updateStatusUI('⚠ BYPASS ACTIVE — DOM noise flooding extension observers');
+      log('ok', 'Bypass engaged. Close tab to restore.');
+    }
+  }
+
+  function updateStatusUI(msg) {
+    var details = document.getElementById('status-details');
+    if (details) {
+      details.innerHTML = '<p style="font-size:10px;color:#888;">' + msg + '</p>';
+    }
+  }
+
+  // ===== LOGGING =====
+  function log(type, msg) {
+    var area = document.getElementById('log-area');
+    if (!area) { console.log(msg); return; }
+
+    var line = document.createElement('div');
+    line.className = 'log-line ' + type;
+
+    var d = new Date();
+    var ts = String(d.getHours()).padStart(2,'0') + ':' +
+             String(d.getMinutes()).padStart(2,'0') + ':' +
+             String(d.getSeconds()).padStart(2,'0');
+    line.textContent = '[' + ts + '] ' + msg;
+
+    area.appendChild(line);
+    area.scrollTop = area.scrollHeight;
+
+    while (area.children.length > 50) {
+      area.removeChild(area.firstChild);
+    }
+  }
+
+  // Expose functions to global scope for onclick handlers
+  window.toggleBypass = toggleBypass;
+  window.activateScreenTrap = activateScreenTrap;
+
+  // Cleanup on unload
+  window.addEventListener('beforeunload', function() {
+    BYPASS_ACTIVE = false;
+    noiseRunning = false;
+    if (noiseData.attrTimer) { clearInterval(noiseData.attrTimer); }
+  });
+
+})();
+</script>
+</body>
+</html>
