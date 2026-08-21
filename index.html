@@ -2306,7 +2306,7 @@ ieLog('Isolation Engine v3 ready', 'log');
     if (kbFrameWrap.requestFullscreen) kbFrameWrap.requestFullscreen();
   });
 
-  document.querySelectorAll('.kb-bm').forEach(function(bm) {
+  document.querySelectorAll('.kb-bm:not(.kb-bm-add)').forEach(function(bm) {
     bm.addEventListener('click', function() { navigateTo(this.dataset.url); });
   });
 
