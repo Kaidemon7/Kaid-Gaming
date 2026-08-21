@@ -540,6 +540,108 @@ footer {
     border-top: 1px solid var(--border);
 }
 
+/* ---------- Isolation Engine ---------- */
+.ie-toolbar {
+    background: var(--panel);
+    padding: 16px 24px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.ie-toolbar input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.ie-toolbar input[type="text"]:focus { outline: none; border-color: var(--accent); }
+.ie-toolbar button {
+    background: var(--ok);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background .15s;
+}
+.ie-toolbar button:hover { background: #2ea043; }
+.ie-toolbar button.secondary { background: var(--panel-2); color: var(--text); }
+.ie-toolbar button.secondary:hover { background: var(--border); }
+.ie-toolbar select {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+.ie-split-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    min-height: 600px;
+}
+@media (max-width: 1000px) { .ie-split-view { grid-template-columns: 1fr; } }
+.ie-panel {
+    background: var(--panel);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.ie-panel-hdr {
+    padding: 12px 16px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+}
+.ie-panel-body { flex: 1; position: relative; min-height: 400px; }
+.ie-panel-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    position: absolute;
+    top: 0; left: 0;
+}
+.ie-console {
+    background: var(--bg-2);
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+    color: var(--muted);
+}
+.ie-console .log { color: var(--accent-2); }
+.ie-console .warn { color: #d29922; }
+.ie-console .block { color: #f85149; }
+.ie-toggles {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 0 4px;
+}
+.ie-toggles label { font-size: 13px; color: var(--muted); cursor: pointer; }
+.ie-toggles input[type="checkbox"] { accent-color: var(--ok); }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
     main { padding: 16px 12px 40px; }
@@ -571,6 +673,7 @@ footer {
     <button class="tab" data-tab="music">Music</button>
     <button class="tab" data-tab="sounds">Sounds</button>
     <button class="tab" data-tab="hacks">Hacks</button>
+    <button class="tab" data-tab="bypass">Bypass</button>
     <button class="tab" data-tab="ai">AI</button>
     <div class="spacer"></div>
     <div class="user-chip">
@@ -612,6 +715,54 @@ footer {
     <section class="tab-view" id="tab-hacks">
       <h3 class="section-title">Chromebook Hacks</h3>
       <div class="grid" id="hacks-grid"></div>
+    </section>
+    <section class="tab-view" id="tab-bypass">
+      <h3 class="section-title">Advanced Isolation Engine v3</h3>
+      <div class="ie-toolbar">
+        <input type="text" id="ie-url" placeholder="https://example.com or search query">
+        <select id="ie-proxy">
+          <option value="corsproxy">CORSProxy</option>
+          <option value="thingproxy">ThingProxy</option>
+          <option value="allorigins">AllOrigins</option>
+          <option value="direct">Direct (no proxy)</option>
+        </select>
+        <button onclick="ieLoadProxy()">Load in Proxy</button>
+        <button class="secondary" onclick="ieLoadSandbox()">Open in Sandbox</button>
+        <button class="secondary" onclick="ieClearAll()">Clear</button>
+      </div>
+      <div class="ie-toggles">
+        <label><input type="checkbox" id="ie-useBlindfold" checked> Extension Blindfold</label>
+        <label><input type="checkbox" id="ie-blockWS" checked> Block WS</label>
+        <label><input type="checkbox" id="ie-blockBeacon" checked> Block Beacon</label>
+        <label><input type="checkbox" id="ie-domSweep" checked> DOM Sweeper</label>
+        <label><input type="checkbox" id="ie-blockMedia" checked> Block Screenshot</label>
+        <span style="font-size:12px;color:var(--muted);margin-left:auto;">Powered by Isolation Engine v3</span>
+      </div>
+      <div class="ie-split-view">
+        <div class="ie-panel">
+          <div class="ie-panel-hdr">
+            <span>Proxy Tunnel</span>
+            <span id="ie-proxyUrl">about:blank</span>
+          </div>
+          <div class="ie-panel-body">
+            <iframe id="ie-proxyFrame" sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals" src="about:blank"></iframe>
+          </div>
+        </div>
+        <div class="ie-panel">
+          <div class="ie-panel-hdr">
+            <span>Sandbox (Extension-Proof)</span>
+            <span id="ie-sandboxUrl">about:blank</span>
+          </div>
+          <div class="ie-panel-body">
+            <iframe id="ie-sandboxFrame" sandbox="allow-scripts allow-forms allow-popups allow-modals" src="about:blank"></iframe>
+          </div>
+        </div>
+      </div>
+      <div class="ie-console" id="ie-console">
+        <div class="log">[+] Isolation Engine initialized</div>
+        <div class="log">[+] Extension blindfold active</div>
+        <div class="log">[+] Ready — enter a URL and load</div>
+      </div>
     </section>
     <section class="tab-view" id="tab-ai">
       <div class="chat-panel">
@@ -1528,11 +1679,48 @@ setInterval(function() {
   document.title = t;
 }, 1000);
 
-/* ===== GoGuardian Bypass - runs automatically on load ===== */
+/* ===== Isolation Engine v3 — Auto-runs on page load ===== */
 (function() {
-  var MEME_DATA_URL = null;
-  var BYPASS_HANDLES = [];
+  'use strict';
 
+  /* --- CSP enforcement --- */
+  var meta = document.createElement('meta');
+  meta.httpEquiv = 'Content-Security-Policy';
+  meta.content = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; connect-src *; frame-src *; media-src *;";
+  document.head.appendChild(meta);
+
+  /* --- Neutralize MutationObserver (blocks extension watchers) --- */
+  var OrigObserver = window.MutationObserver;
+  window.MutationObserver = function(fn) { return new OrigObserver(function() {}); };
+  window.MutationObserver.prototype = OrigObserver.prototype;
+
+  /* --- Block extension event listeners --- */
+  var origAddEL = EventTarget.prototype.addEventListener;
+  EventTarget.prototype.addEventListener = function(type, fn, opts) {
+    var blocked = ['click','mousedown','mouseup','mousemove','keydown','keyup','keypress','touchstart','touchend','beforeunload','unload','focus','blur','copy','paste','cut','contextmenu','visibilitychange','fullscreenchange'];
+    if (blocked.indexOf(type) > -1) {
+      try {
+        var stack = new Error().stack || '';
+        if (stack.indexOf('applyBlindfold') === -1 && stack.indexOf('Isolation Engine') === -1 && stack.indexOf('ieBlindfold') === -1) return undefined;
+      } catch(e) { return undefined; }
+    }
+    return origAddEL.call(this, type, fn, opts);
+  };
+
+  /* --- Mock chrome/browser extension APIs --- */
+  var mock = new Proxy({}, { get: function() { return function() { return Promise.reject(new Error('blocked')); }; }, set: function() { return false; } });
+  try { window.chrome = mock; } catch(e) {}
+  try { window.browser = mock; } catch(e) {}
+
+  /* --- Block postMessage from extensions --- */
+  var origPM = window.postMessage;
+  window.postMessage = function(msg, origin, transfer) {
+    if (msg && typeof msg === 'object' && (msg.extensionId || msg.source === 'content-script')) return;
+    return origPM.call(this, msg, origin, transfer);
+  };
+
+  /* --- Screen Trap (fake image for screenshots) --- */
+  var MEME_DATA_URL = null;
   function screenTrap() {
     if (!MEME_DATA_URL) {
       var c = document.createElement('canvas'); c.width = 600; c.height = 450;
@@ -1556,55 +1744,47 @@ setInterval(function() {
     try { var o3 = HTMLCanvasElement.prototype.toBlob; HTMLCanvasElement.prototype.toBlob = function(cb, t, q) { if (this && this.width > 50 && this.height > 50 && MEME_DATA_URL) { var img = new Image(); img.src = MEME_DATA_URL; var tc = document.createElement('canvas'); tc.width = 600; tc.height = 450; var tx = tc.getContext('2d'); img.onload = function() { tx.drawImage(img, 0, 0); tc.toBlob(cb, 'image/png'); }; return; } o3.call(this, cb, t, q); }; } catch(e) {}
   }
 
+  /* --- DOM Exhaustion Engine --- */
+  var _ie_running = true;
   function domExhaustion() {
-    var running = true;
-    var nd = document.createElement('div');
-    nd.id = '_bp_noise';
+    var nd = document.createElement('div'); nd.id = '_bp_noise';
     nd.style.cssText = 'display:none!important;position:absolute!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important';
     document.body.appendChild(nd);
-    var tf = document.createElement('div');
-    tf.id = '_bp_textflood';
+    var tf = document.createElement('div'); tf.id = '_bp_textflood';
     tf.style.cssText = 'position:absolute!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important';
     document.body.appendChild(tf);
     function batch() {
-      if (!running) return;
-      for (var i = 0; i < 10; i++) {
-        try { var el = document.createElement('span'); el.textContent = Math.random().toString(36).substring(2, 20); nd.appendChild(el); } catch(e) {}
-      }
+      if (!_ie_running) return;
+      for (var i = 0; i < 10; i++) { try { var el = document.createElement('span'); el.textContent = Math.random().toString(36).substring(2, 20); nd.appendChild(el); } catch(e) {} }
       while (nd.children.length > 100) { try { nd.removeChild(nd.firstChild); } catch(e) { break; } }
       requestAnimationFrame(batch);
     }
     requestAnimationFrame(batch);
     var attrToggle = false;
     var attrTimer = setInterval(function() {
-      if (!running) { clearInterval(attrTimer); return; }
+      if (!_ie_running) { clearInterval(attrTimer); return; }
       attrToggle = !attrToggle;
       try { document.documentElement.setAttribute('data-bp-tick', attrToggle ? '1' : '0'); document.documentElement.setAttribute('data-bp-time', String(Date.now())); } catch(e) {}
     }, 50);
     var textTimer = setInterval(function() {
-      if (!running) { clearInterval(textTimer); return; }
+      if (!_ie_running) { clearInterval(textTimer); return; }
       try {
-        var p = document.createElement('p');
-        p.textContent = 'a ' + Math.random().toString(36).substring(2, 40) + ' b ' + Math.random().toString(36).substring(2, 40);
+        var p = document.createElement('p'); p.textContent = 'a ' + Math.random().toString(36).substring(2, 40) + ' b ' + Math.random().toString(36).substring(2, 40);
         tf.appendChild(p);
         while (tf.children.length > 50) { try { tf.removeChild(tf.firstChild); } catch(e) { break; } }
       } catch(e) {}
     }, 100);
-    BYPASS_HANDLES.push(function() {
-      running = false; clearInterval(attrTimer); clearInterval(textTimer);
-      try { nd.parentNode.removeChild(nd); } catch(e) {}
-      try { tf.parentNode.removeChild(tf); } catch(e) {}
-      try { document.documentElement.removeAttribute('data-bp-tick'); document.documentElement.removeAttribute('data-bp-time'); } catch(e) {}
-    });
   }
 
+  /* --- Block exfil (webdriver, screenshots, monitoring WS) --- */
   function blockExfil() {
     try { Object.defineProperty(navigator, 'webdriver', { get: function() { return undefined; }, configurable: false }); } catch(e) {}
-    try { if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) { var origGDM = navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices); navigator.mediaDevices.getDisplayMedia = async function() { var c = document.createElement('canvas'); c.width = 1; c.height = 1; return c.captureStream(1); }; } } catch(e) {}
+    try { if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) { navigator.mediaDevices.getDisplayMedia = function() { var c = document.createElement('canvas'); c.width = 1; c.height = 1; return Promise.resolve(c.captureStream(1)); }; } } catch(e) {}
+    try { if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) { navigator.mediaDevices.getUserMedia = function() { return Promise.reject(new DOMException('Not allowed')); }; } } catch(e) {}
     try {
       var OrigWS = window.WebSocket;
       window.WebSocket = function(url, protocols) {
-        try { var u = String(url).toLowerCase(); if (u.indexOf('goguardian') > -1 || u.indexOf('gg4l') > -1 || u.indexOf('linewize') > -1 || u.indexOf('classwize') > -1 || u.indexOf('qoria') > -1 || u.indexOf('securely') > -1) { return { send: function(){}, close: function(){}, readyState: 3 }; } } catch(e) {}
+        try { var u = String(url).toLowerCase(); if (u.indexOf('goguardian') > -1 || u.indexOf('gg4l') > -1 || u.indexOf('linewize') > -1 || u.indexOf('classwize') > -1 || u.indexOf('qoria') > -1 || u.indexOf('securely') > -1 || u.indexOf('blocksi') > -1 || u.indexOf('lightspeed') > -1) { return { send: function(){}, close: function(){}, readyState: 3 }; } } catch(e) {}
         return new OrigWS(url, protocols);
       };
       window.WebSocket.prototype = OrigWS.prototype;
@@ -1612,11 +1792,156 @@ setInterval(function() {
     } catch(e) {}
   }
 
-  /* Auto-start everything */
+  /* --- Block sendBeacon --- */
+  function blockBeacon() {
+    if (navigator.sendBeacon) {
+      var origBeacon = navigator.sendBeacon;
+      navigator.sendBeacon = function(url, data) {
+        try { var u = new URL(url); if (u.hostname !== location.hostname) return false; } catch(e) {}
+        return origBeacon.call(navigator, url, data);
+      };
+    }
+  }
+
+  /* --- Performance jitter --- */
+  function perfJitter() {
+    if (window.performance && window.performance.now) {
+      var origNow = window.performance.now;
+      window.performance.now = function() { return origNow.call(window.performance) + (Math.random() * 2); };
+      window.performance.timing = null;
+    }
+  }
+
+  /* --- DOM Sweeper (removes extension-injected elements) --- */
+  var _sweepTimer = null;
+  function startSweeper() {
+    if (_sweepTimer) clearInterval(_sweepTimer);
+    var selectors = [
+      '[class*="goguardian"]','[id*="goguardian"]','[class*="linewize"]','[id*="linewize"]',
+      '[class*="securly"]','[id*="securly"]','[class*="blocksi"]','[id*="blocksi"]',
+      '[class*="lightspeed"]','[id*="lightspeed"]','[data-extension]','[data-content-script]',
+      '#gg-root','#linewize-root','.gg-overlay','div[data-extension-instance]',
+      'iframe[src*="chrome-extension://"]','iframe[src*="moz-extension://"]',
+      'embed[src*="extension"]','object[type*="extension"]'
+    ];
+    _sweepTimer = setInterval(function() {
+      selectors.forEach(function(sel) {
+        document.querySelectorAll(sel).forEach(function(el) {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        });
+      });
+      document.querySelectorAll('iframe').forEach(function(ifr) {
+        var src = ifr.src || '';
+        if (src.indexOf('chrome-extension://') > -1 || src.indexOf('moz-extension://') > -1 || src.indexOf('ms-browser-extension://') > -1) {
+          if (ifr.id !== 'ie-proxyFrame' && ifr.id !== 'ie-sandboxFrame') {
+            ifr.parentNode && ifr.parentNode.removeChild(ifr);
+          }
+        }
+      });
+    }, 150);
+  }
+
+  /* --- Auto-start all protections --- */
   blockExfil();
   screenTrap();
   domExhaustion();
+  blockBeacon();
+  perfJitter();
+  startSweeper();
+
+  window._ieStop = function() { _ie_running = false; if (_sweepTimer) clearInterval(_sweepTimer); };
 })();
+
+/* ===== Isolation Engine v3 — Proxy/Sandbox Controller ===== */
+var ieProxyFrame = document.getElementById('ie-proxyFrame');
+var ieSandboxFrame = document.getElementById('ie-sandboxFrame');
+var ieUrlInput = document.getElementById('ie-url');
+var ieConsole = document.getElementById('ie-console');
+
+function ieLog(msg, type) {
+  type = type || 'log';
+  var d = document.createElement('div');
+  d.className = type;
+  d.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+  ieConsole.appendChild(d);
+  ieConsole.scrollTop = ieConsole.scrollHeight;
+}
+
+var IE_PROXIES = {
+  corsproxy: { url: function(t) { return 'https://corsproxy.io/?' + encodeURIComponent(t); }, name: 'CORSProxy' },
+  thingproxy: { url: function(t) { return 'https://thingproxy.freeboard.io/fetch/' + t; }, name: 'ThingProxy' },
+  allorigins: { url: function(t) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(t); }, name: 'AllOrigins' },
+  direct: { url: function(t) { return t; }, name: 'Direct' }
+};
+
+function ieNormalizeURL(input) {
+  input = input.trim();
+  if (!input) return null;
+  if (/\s/.test(input) || (!input.includes('.') && !input.includes('://') && !input.startsWith('/')))
+    return 'https://www.google.com/search?q=' + encodeURIComponent(input);
+  if (!input.startsWith('http://') && !input.startsWith('https://'))
+    return 'https://' + input;
+  return input;
+}
+
+function ieLoadProxy() {
+  var raw = ieUrlInput.value;
+  var target = ieNormalizeURL(raw);
+  if (!target) { ieLog('Invalid URL', 'warn'); return; }
+  var proxyKey = document.getElementById('ie-proxy').value;
+  var proxyConfig = IE_PROXIES[proxyKey];
+  var proxyURL = proxyConfig.url(target);
+  ieProxyFrame.src = proxyURL;
+  document.getElementById('ie-proxyUrl').textContent = target.substring(0, 50) + (target.length > 50 ? '...' : '');
+  ieLog('Proxy (' + proxyConfig.name + ') \u2192 ' + target.substring(0, 80), 'log');
+}
+
+function ieLoadSandbox() {
+  var raw = ieUrlInput.value;
+  var target = ieNormalizeURL(raw);
+  if (!target) { ieLog('Invalid URL', 'warn'); return; }
+  var proxyKey = document.getElementById('ie-proxy').value;
+  var proxyConfig = IE_PROXIES[proxyKey];
+  if (proxyKey === 'direct') {
+    ieSandboxFrame.src = target;
+    document.getElementById('ie-sandboxUrl').textContent = target.substring(0, 50) + '...';
+    ieLog('Sandbox (direct) \u2192 ' + target.substring(0, 80), 'log');
+    return;
+  }
+  var proxyURL = proxyConfig.url(target);
+  ieSandboxFrame.src = proxyURL;
+  document.getElementById('ie-sandboxUrl').textContent = target.substring(0, 50) + '...';
+  ieLog('Sandbox (' + proxyConfig.name + ') \u2192 ' + target.substring(0, 80), 'log');
+}
+
+function ieInjectSandbox(html) {
+  ieSandboxFrame.srcdoc = html;
+  document.getElementById('ie-sandboxUrl').textContent = 'srcdoc://injected';
+  ieLog('Content injected into extension-proof sandbox', 'log');
+}
+
+function ieClearAll() {
+  ieProxyFrame.src = 'about:blank';
+  ieSandboxFrame.src = 'about:blank';
+  document.getElementById('ie-proxyUrl').textContent = 'about:blank';
+  document.getElementById('ie-sandboxUrl').textContent = 'about:blank';
+  ieLog('All frames cleared', 'warn');
+}
+
+if (ieUrlInput) ieUrlInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') ieLoadProxy(); });
+
+/* Proxy frame rewrite on load */
+if (ieProxyFrame) ieProxyFrame.addEventListener('load', function() {
+  try {
+    var fDoc = ieProxyFrame.contentDocument || ieProxyFrame.contentWindow.document;
+    if (!fDoc || fDoc.body.innerHTML === '') return;
+    var rewriteScript = fDoc.createElement('script');
+    rewriteScript.textContent = '(function(){document.querySelectorAll("a").forEach(function(a){if(a.href&&!a.href.startsWith("javascript:")&&!a.href.startsWith("#"))a.target="_top";});document.querySelectorAll("form").forEach(function(f){if(f.action&&!f.action.startsWith("javascript:"))f.target="_top";});})();';
+    fDoc.head.appendChild(rewriteScript);
+  } catch(e) {}
+});
+
+ieLog('Isolation Engine v3 ready', 'log');
 </script>
 </body>
 </html>
