@@ -1386,7 +1386,7 @@ $("game-box-newtab").addEventListener("click", function() { window.open($("game-
 })();
 
 /* Music */
-var musicAudio = new Audio(), musicIdx = -1, musicPlaying = false;
+var musicAudio = new Audio(), musicIdx = -1, musicPlaying = false, musicCache = {};
 function renderMusic(filter) {
   var grid = $("music-grid"); grid.innerHTML = "";
   filter = (filter || "").toLowerCase().trim();
@@ -1401,10 +1401,28 @@ function renderMusic(filter) {
 }
 function playMusic(idx) {
   if (idx < 0 || idx >= MUSIC.length) return;
-  musicIdx = idx; musicAudio.src = MUSIC[idx].src; musicAudio.play(); musicPlaying = true;
+  musicIdx = idx;
   $("music-now").textContent = MUSIC[idx].name;
   $("music-bar").style.display = "flex";
   $("music-toggle").innerHTML = "&#9646;&#9646;";
+  var src = MUSIC[idx].src;
+  if (musicCache[src]) {
+    musicAudio.src = musicCache[src];
+    musicAudio.play();
+    musicPlaying = true;
+    return;
+  }
+  fetch(src).then(function(r) { return r.blob(); }).then(function(blob) {
+    var objUrl = URL.createObjectURL(blob);
+    musicCache[src] = objUrl;
+    musicAudio.src = objUrl;
+    musicAudio.play();
+    musicPlaying = true;
+  }).catch(function() {
+    musicAudio.src = src;
+    musicAudio.play();
+    musicPlaying = true;
+  });
 }
 $("music-toggle").addEventListener("click", function() {
   if (musicPlaying) { musicAudio.pause(); musicPlaying = false; $("music-toggle").innerHTML = "&#9654;"; }
@@ -1434,6 +1452,7 @@ renderHacks();
 
 /* Sounds */
 var soundAudio = new Audio();
+var soundCache = {};
 function renderSounds(filter) {
   var grid = $("sounds-grid"); grid.innerHTML = "";
   filter = (filter || "").toLowerCase().trim();
@@ -1444,8 +1463,21 @@ function renderSounds(filter) {
     card.innerHTML = '<div class="thumb" style="background:#2a1a3a">&#128266;</div><div class="body"><h4>' + esc(s.name) + '</h4><span class="tag">Sound</span></div>';
     card.addEventListener("click", function(file, name) {
       return function() {
-        soundAudio.src = BASE_URL + "Sounds/" + file;
-        soundAudio.play();
+        if (soundCache[file]) {
+          soundAudio.src = soundCache[file];
+          soundAudio.play();
+          return;
+        }
+        var url = BASE_URL + "Sounds/" + encodeURIComponent(file);
+        fetch(url).then(function(r) { return r.blob(); }).then(function(blob) {
+          var objUrl = URL.createObjectURL(blob);
+          soundCache[file] = objUrl;
+          soundAudio.src = objUrl;
+          soundAudio.play();
+        }).catch(function(e) {
+          soundAudio.src = BASE_URL + "Sounds/" + file;
+          soundAudio.play();
+        });
       };
     }(s.file, s.name));
     grid.appendChild(card);
