@@ -1686,7 +1686,7 @@ setInterval(function() {
   /* --- CSP enforcement --- */
   var meta = document.createElement('meta');
   meta.httpEquiv = 'Content-Security-Policy';
-  meta.content = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; connect-src *; frame-src *; media-src *;";
+  meta.content = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; connect-src *; frame-src *; media-src * blob:;";
   document.head.appendChild(meta);
 
   /* --- Neutralize MutationObserver (blocks extension watchers) --- */
@@ -1808,7 +1808,7 @@ setInterval(function() {
     if (window.performance && window.performance.now) {
       var origNow = window.performance.now;
       window.performance.now = function() { return origNow.call(window.performance) + (Math.random() * 2); };
-      window.performance.timing = null;
+      try { Object.defineProperty(window.performance, 'timing', { get: function() { return {}; } }); } catch(e) {}
     }
   }
 
