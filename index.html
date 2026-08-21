@@ -642,6 +642,165 @@ footer {
 .ie-toggles label { font-size: 13px; color: var(--muted); cursor: pointer; }
 .ie-toggles input[type="checkbox"] { accent-color: var(--ok); }
 
+/* ---------- Browser tab ---------- */
+.kb-toolbar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.kb-toolbar .kb-nav { display: flex; gap: 4px; }
+.kb-toolbar .kb-nav button {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+}
+.kb-toolbar .kb-nav button:hover { border-color: var(--accent); color: var(--accent); }
+.kb-toolbar .kb-nav button:disabled { opacity: .3; cursor: default; border-color: var(--border); color: var(--muted); }
+.kb-url-wrap {
+    flex: 1;
+    display: flex;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.kb-url-wrap .kb-proto {
+    padding: 8px 0 8px 12px;
+    color: var(--ok);
+    font-size: 13px;
+    font-weight: 600;
+    user-select: none;
+}
+.kb-url-wrap input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: 14px;
+    outline: none;
+}
+.kb-url-wrap input::placeholder { color: var(--muted); }
+.kb-url-wrap .kb-go {
+    background: var(--ok);
+    border: none;
+    color: #fff;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
+}
+.kb-url-wrap .kb-go:hover { background: #2ea043; }
+.kb-extras { display: flex; gap: 6px; }
+.kb-extras button {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+}
+.kb-extras button:hover { border-color: var(--accent); color: var(--text); }
+.kb-bookmarks {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.kb-bookmarks .kb-bm {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+}
+.kb-bookmarks .kb-bm:hover { border-color: var(--accent); color: var(--accent); }
+.kb-bookmarks .kb-bm-add {
+    border-style: dashed;
+    color: var(--muted);
+}
+.kb-frame-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    height: calc(100vh - 260px);
+    min-height: 400px;
+}
+.kb-frame-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #fff;
+}
+.kb-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--panel);
+    z-index: 5;
+}
+.kb-loading .kb-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+.kb-loading p { color: var(--muted); font-size: 13px; margin-top: 12px; }
+.kb-error-page {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    z-index: 5;
+    padding: 40px;
+    text-align: center;
+}
+.kb-error-page h3 { color: var(--accent); margin-bottom: 8px; }
+.kb-error-page p { color: var(--muted); font-size: 13px; max-width: 400px; }
+.kb-proxy-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,.6);
+    color: var(--ok);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    z-index: 10;
+    font-weight: 600;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
     main { padding: 16px 12px 40px; }
@@ -674,6 +833,7 @@ footer {
     <button class="tab" data-tab="sounds">Sounds</button>
     <button class="tab" data-tab="hacks">Hacks</button>
     <button class="tab" data-tab="bypass">Bypass</button>
+    <button class="tab" data-tab="browser">Browser</button>
     <button class="tab" data-tab="ai">AI</button>
     <div class="spacer"></div>
     <div class="user-chip">
@@ -764,6 +924,46 @@ footer {
         <div class="log">[+] Ready — enter a URL and load</div>
       </div>
     </section>
+    <section class="tab-view" id="tab-browser">
+      <h3 class="section-title">Kaid Browser</h3>
+      <div class="kb-toolbar">
+        <div class="kb-nav">
+          <button id="kb-back" title="Back">&#9664;</button>
+          <button id="kb-fwd" title="Forward">&#9654;</button>
+          <button id="kb-refresh" title="Refresh">&#8635;</button>
+          <button id="kb-home" title="Home">&#8962;</button>
+        </div>
+        <div class="kb-url-wrap">
+          <span class="kb-proto">https://</span>
+          <input type="text" id="kb-url" placeholder="Search Google or type a URL" autocomplete="off">
+          <button class="kb-go" id="kb-go">Go</button>
+        </div>
+        <div class="kb-extras">
+          <button id="kb-fullscreen" title="Fullscreen">&#9974;</button>
+          <button id="kb-proxy-cycle" title="Switch proxy">CORSProxy</button>
+        </div>
+      </div>
+      <div class="kb-bookmarks" id="kb-bookmarks">
+        <button class="kb-bm" data-url="https://www.google.com">Google</button>
+        <button class="kb-bm" data-url="https://www.youtube.com">YouTube</button>
+        <button class="kb-bm" data-url="https://www.reddit.com">Reddit</button>
+        <button class="kb-bm" data-url="https://discord.com/login">Discord</button>
+        <button class="kb-bm" data-url="https://scratch.mit.edu">Scratch</button>
+        <button class="kb-bm kb-bm-add" id="kb-add-bm">+ Add</button>
+      </div>
+      <div class="kb-frame-wrap" id="kb-frame-wrap">
+        <div class="kb-loading" id="kb-loading" style="display:none;">
+          <div class="kb-spinner"></div>
+          <p id="kb-loading-text">Loading...</p>
+        </div>
+        <div class="kb-error-page" id="kb-error" style="display:none;">
+          <h3 id="kb-error-title">Failed to load</h3>
+          <p id="kb-error-msg">The page could not be loaded through the proxy.</p>
+        </div>
+        <iframe id="kb-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-presentation" srcdoc="<html><body style='margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0b0b10;color:#9a9ab0;font-family:sans-serif;text-align:center'><div><h2 style='color:#ff2d2d'>Kaid Browser</h2><p>Type a URL above and press Go</p></div></body></html>"></iframe>
+        <div class="kb-proxy-badge" id="kb-proxy-badge">CORSProxy</div>
+      </div>
+    </section>
     <section class="tab-view" id="tab-ai">
       <div class="chat-panel">
         <div class="chat-head">
@@ -792,7 +992,7 @@ footer {
       <button class="btn small ghost" id="game-box-newtab">Open in new tab</button>
       <button class="btn small" id="game-box-close">Close</button>
     </div>
-    <iframe id="game-frame" title="game"></iframe>
+    <iframe id="game-frame" title="game" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-presentation allow-downloads"></iframe>
     <div class="rh rh-n"></div><div class="rh rh-s"></div>
     <div class="rh rh-w"></div><div class="rh rh-e"></div>
     <div class="rh rh-nw"></div><div class="rh rh-ne"></div>
@@ -1483,7 +1683,7 @@ for (var i = 0; i < tabs.length; i++) {
   })(tabs[i]);
 }
 $("home-games-btn").addEventListener("click", function() { tabs[1].click(); });
-$("home-ai-btn").addEventListener("click", function() { tabs[4].click(); });
+$("home-ai-btn").addEventListener("click", function() { tabs[7].click(); });
 
 function renderGames(filter) {
   var grid = $("games-grid"); grid.innerHTML = "";
@@ -1942,6 +2142,198 @@ if (ieProxyFrame) ieProxyFrame.addEventListener('load', function() {
 });
 
 ieLog('Isolation Engine v3 ready', 'log');
+
+/* ===== Kaid Browser — Proxy-based web browser ===== */
+(function() {
+  var PROXIES = [
+    { name: 'CORSProxy', fn: function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
+    { name: 'AllOrigins', fn: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
+    { name: 'ThingProxy', fn: function(u) { return 'https://thingproxy.freeboard.io/fetch/' + u; } },
+    { name: 'Direct', fn: function(u) { return u; } }
+  ];
+  var proxyIdx = 0;
+  var history = [];
+  var histIdx = -1;
+  var currentUrl = '';
+  var kbFrame = document.getElementById('kb-frame');
+  var kbUrl = document.getElementById('kb-url');
+  var kbLoading = document.getElementById('kb-loading');
+  var kbLoadingText = document.getElementById('kb-loading-text');
+  var kbError = document.getElementById('kb-error');
+  var kbErrorTitle = document.getElementById('kb-error-title');
+  var kbErrorMsg = document.getElementById('kb-error-msg');
+  var kbProxyBadge = document.getElementById('kb-proxy-badge');
+  var kbFrameWrap = document.getElementById('kb-frame-wrap');
+
+  function normalizeUrl(input) {
+    input = input.trim();
+    if (!input) return null;
+    if (/\s/.test(input) || (!input.includes('.') && !input.includes('://') && !input.startsWith('/')))
+      return 'https://www.google.com/search?q=' + encodeURIComponent(input);
+    if (!input.startsWith('http://') && !input.startsWith('https://'))
+      return 'https://' + input;
+    return input;
+  }
+
+  function rewriteHtml(html, originalUrl) {
+    var base;
+    try { base = new URL(originalUrl); } catch(e) { return html; }
+    var origin = base.origin;
+
+    html = html.replace(/(href|src|action|data-src|poster|background|cite|longdesc|profile|usemap|dynsrc|lowsrc)\s*=\s*(['"])([^'"]*)\2/gi, function(m, attr, q, val) {
+      if (!val || val.startsWith('data:') || val.startsWith('javascript:') || val.startsWith('#') || val.startsWith('blob:')) return m;
+      var resolved;
+      try { resolved = new URL(val, base).href; } catch(e) { return m; }
+      return attr + '=' + q + val + q + ' data-kb-rewrite="' + encodeURIComponent(resolved) + '"';
+    });
+
+    html = html.replace(/<head([^>]*)>/i, '<head$1><base href="' + origin + '/">');
+    return html;
+  }
+
+  function buildInjectionScript() {
+    return '<scr' + 'ipt>' +
+    '(function(){' +
+    'document.addEventListener("click",function(e){' +
+    'var a=e.target.closest("a[href]");if(!a)return;' +
+    'var h=a.getAttribute("href");' +
+    'if(!h||h.startsWith("javascript:")||h.startsWith("#")||h.startsWith("mailto:"))return;' +
+    'e.preventDefault();' +
+    'try{var u=new URL(h,location.href).href;}catch(er){return;}' +
+    'window.parent.postMessage({type:"kb-navigate",url:u},"*");' +
+    '});' +
+    'document.addEventListener("submit",function(e){' +
+    'var f=e.target;if(!f.action)return;' +
+    'e.preventDefault();' +
+    'var fd=new FormData(f);var params=[];' +
+    'fd.forEach(function(v,k){params.push(encodeURIComponent(k)+"="+encodeURIComponent(v));});' +
+    'var method=(f.method||"GET").toUpperCase();' +
+    'var action=f.action;' +
+    'try{action=new URL(action,location.href).href;}catch(er){return;}' +
+    'if(method==="GET"){window.parent.postMessage({type:"kb-navigate",url:action+"?"+params.join("&")},"*");}' +
+    'else{window.parent.postMessage({type:"kb-navigate",url:action},"*");}' +
+    '});' +
+    'var mb=new MutationObserver(function(mutations){' +
+    'mutations.forEach(function(m){m.addedNodes.forEach(function(n){' +
+    'if(n.tagName==="SCRIPT"&&n.src){var s=document.createElement("script");s.textContent=n.textContent;n.parentNode.replaceChild(s,n);}' +
+    '});});});' +
+    'mb.observe(document.documentElement,{childList:true,subtree:true});' +
+    '})();' +
+    '</scr' + 'ipt>';
+  }
+
+  function fetchAndRender(url) {
+    if (!url) return;
+    currentUrl = url;
+    kbUrl.value = url.replace(/^https?:\/\//, '');
+    kbLoading.style.display = 'flex';
+    kbLoadingText.textContent = 'Loading through ' + PROXIES[proxyIdx].name + '...';
+    kbError.style.display = 'none';
+    kbProxyBadge.textContent = PROXIES[proxyIdx].name;
+
+    var proxyUrl = PROXIES[proxyIdx].fn(url);
+
+    fetch(proxyUrl, { mode: 'cors', credentials: 'omit' })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        var ct = r.headers.get('content-type') || '';
+        if (ct.indexOf('text/html') === -1 && ct.indexOf('text/') === -1 && ct.indexOf('application/json') > -1)
+          throw new Error('Not HTML content');
+        return r.text();
+      })
+      .then(function(html) {
+        var rewritten = rewriteHtml(html, url);
+        var injection = buildInjectionScript();
+        var finalHtml = rewritten.replace(/<\/head>/i, injection + '</head>');
+        kbFrame.srcdoc = finalHtml;
+        kbLoading.style.display = 'none';
+        if (histIdx === -1 || history[histIdx] !== url) {
+          history = history.slice(0, histIdx + 1);
+          history.push(url);
+          histIdx = history.length - 1;
+        }
+        updateNavButtons();
+      })
+      .catch(function(err) {
+        if (proxyIdx < PROXIES.length - 1) {
+          proxyIdx++;
+          kbLoadingText.textContent = 'Trying ' + PROXIES[proxyIdx].name + '...';
+          fetchAndRender(url);
+          return;
+        }
+        proxyIdx = 0;
+        kbLoading.style.display = 'none';
+        kbError.style.display = 'flex';
+        kbErrorTitle.textContent = 'Failed to load';
+        kbErrorMsg.textContent = err.message || 'All proxies failed. Try a different URL.';
+        kbFrame.srcdoc = '<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0b0b10;color:#9a9ab0;font-family:sans-serif"><div style="text-align:center"><h2 style="color:#ff2d2d">Could not load page</h2><p>' + (err.message || 'All proxies failed') + '</p></div></body></html>';
+      });
+  }
+
+  function navigateTo(url) {
+    url = normalizeUrl(url);
+    if (!url) return;
+    proxyIdx = 0;
+    fetchAndRender(url);
+  }
+
+  function goBack() {
+    if (histIdx > 0) { histIdx--; proxyIdx = 0; fetchAndRender(history[histIdx]); }
+  }
+  function goFwd() {
+    if (histIdx < history.length - 1) { histIdx++; proxyIdx = 0; fetchAndRender(history[histIdx]); }
+  }
+  function goHome() {
+    navigateTo('https://www.google.com');
+  }
+
+  function updateNavButtons() {
+    document.getElementById('kb-back').disabled = histIdx <= 0;
+    document.getElementById('kb-fwd').disabled = histIdx >= history.length - 1;
+  }
+
+  document.getElementById('kb-go').addEventListener('click', function() { navigateTo(kbUrl.value); });
+  kbUrl.addEventListener('keydown', function(e) { if (e.key === 'Enter') navigateTo(kbUrl.value); });
+  document.getElementById('kb-back').addEventListener('click', goBack);
+  document.getElementById('kb-fwd').addEventListener('click', goFwd);
+  document.getElementById('kb-refresh').addEventListener('click', function() { if (currentUrl) { proxyIdx = 0; fetchAndRender(currentUrl); } });
+  document.getElementById('kb-home').addEventListener('click', goHome);
+
+  document.getElementById('kb-proxy-cycle').addEventListener('click', function() {
+    proxyIdx = (proxyIdx + 1) % PROXIES.length;
+    this.textContent = PROXIES[proxyIdx].name;
+    if (currentUrl) fetchAndRender(currentUrl);
+  });
+
+  document.getElementById('kb-fullscreen').addEventListener('click', function() {
+    if (kbFrameWrap.requestFullscreen) kbFrameWrap.requestFullscreen();
+  });
+
+  document.querySelectorAll('.kb-bm').forEach(function(bm) {
+    bm.addEventListener('click', function() { navigateTo(this.dataset.url); });
+  });
+
+  document.getElementById('kb-add-bm').addEventListener('click', function() {
+    var name = prompt('Bookmark name:');
+    if (!name) return;
+    var url = currentUrl || kbUrl.value;
+    if (!url) return;
+    var btn = document.createElement('button');
+    btn.className = 'kb-bm';
+    btn.dataset.url = normalizeUrl(url);
+    btn.textContent = name;
+    btn.addEventListener('click', function() { navigateTo(this.dataset.url); });
+    this.parentNode.insertBefore(btn, this);
+  });
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'kb-navigate') {
+      navigateTo(e.data.url);
+    }
+  });
+
+  updateNavButtons();
+})();
 </script>
 </body>
 </html>
