@@ -2,7 +2,7 @@ const http = require('http');
 const https = require('https');
 const { URL } = require('url');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -97,8 +97,15 @@ const server = http.createServer((req, res) => {
           res.end(html);
         });
       } else {
+        let fixedType = contentType || 'application/octet-stream';
+        if (contentType.includes('text/plain')) {
+          if (/\.js$/i.test(parsed.pathname)) fixedType = 'application/javascript; charset=utf-8';
+          else if (/\.css$/i.test(parsed.pathname)) fixedType = 'text/css; charset=utf-8';
+          else if (/\.json$/i.test(parsed.pathname)) fixedType = 'application/json; charset=utf-8';
+          else if (/\.svg$/i.test(parsed.pathname)) fixedType = 'image/svg+xml';
+        }
         res.writeHead(proxyRes.statusCode, {
-          'Content-Type': contentType || 'application/octet-stream',
+          'Content-Type': fixedType,
           'X-Proxy-Url': targetUrl
         });
         proxyRes.pipe(res);

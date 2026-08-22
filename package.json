@@ -1,0 +1,12 @@
+{
+  "name": "kaid-browser-proxy",
+  "version": "1.0.0",
+  "description": "Kaid Gaming Browser Proxy",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
