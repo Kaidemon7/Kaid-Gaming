@@ -2280,6 +2280,8 @@ ieLog('Isolation Engine v3 ready', 'log');
   var LOCAL_PROXY = 'http://localhost:3000';
   var PROXIES = [
     { name: 'Local', fn: function(u) { return LOCAL_PROXY + '/fetch?url=' + encodeURIComponent(u); } },
+    { name: 'Cors.Lol', fn: function(u) { return 'https://cors.lol/?url=' + encodeURIComponent(u); } },
+    { name: 'CorsProxy.org', fn: function(u) { return 'https://corsproxy.org/?' + encodeURIComponent(u); } },
     { name: 'CORSProxy', fn: function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
     { name: 'AllOrigins', fn: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } }
   ];
