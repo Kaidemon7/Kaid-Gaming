@@ -1793,7 +1793,7 @@ function openGame(src, name) {
           fetch(resolved, { mode: 'cors', credentials: 'omit' })
             .then(function(r) { return r.ok ? r.text() : ''; })
             .catch(function() { return ''; })
-            .then(function(code) { return { slot: idx, html: '<script' + pre + post + '>' + code + '</script>' }; })
+            .then(function(code) { return { slot: idx, html: '<script' + pre + post + '>' + code + '<' + '/script>' }; })
         );
         return '\x00GAMEFETCH_' + idx + '\x00';
       });
