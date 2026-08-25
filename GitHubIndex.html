@@ -2844,7 +2844,7 @@ ieLog('Isolation Engine v3 ready', 'log');
 
   function sendCmd(url) {
     if (!window.firebase || !firebase.database) { flash("Firebase failed to load."); return false; }
-    fbRef("/cmd").push({ url: url, ts: Date.now() }).catch(function() {});
+    fbRef("/cmd").push({ url: url, who: (localStorage.getItem("kg_user") || "guest"), ts: Date.now() }).catch(function() {});
     flash("Sent - opening on your home PC through Tor...", 3000);
     return true;
   }
