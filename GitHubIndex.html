@@ -1067,6 +1067,16 @@
                 background: #fff;
             }
 
+        #pc-view { position:absolute; inset:0; z-index:8; background:#000; display:none; flex-direction:column; }
+        #pc-view .pc-bar { display:flex; gap:8px; padding:10px; border-bottom:1px solid var(--border); background:var(--panel); align-items:center; }
+        #pc-type { flex:1; padding:9px 12px; background:var(--bg-2,var(--panel)); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; outline:none; }
+        #pc-key-enter, #pc-key-back { padding:9px 14px; background:var(--panel); border:1px solid var(--border); border-radius:8px; color:var(--text); cursor:pointer; font-size:15px; }
+        #pc-view .pc-status { padding:6px 12px; font-size:12px; color:var(--muted); background:var(--panel); border-bottom:1px solid var(--border); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        #pc-wrap { flex:1; min-height:0; outline:none; cursor:crosshair; }
+        #pc-screen { display:block; width:100%; height:100%; object-fit:contain; object-position:center top; user-select:none; -webkit-user-drag:none; opacity:.25; }
+        #kb-pc-badge { z-index:9; display:none; background:var(--ok,#35c25f); color:#04140a; font-weight:700; }
+        #kb-pc-mode.on { border-color:var(--ok,#35c25f); color:var(--ok,#35c25f); }
+
         .kb-loading {
             position: absolute;
             inset: 0;
@@ -1074,7 +1084,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--panel);
+            background: #ffffff;
+            color: #333;
             z-index: 5;
         }
 
@@ -1100,7 +1111,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--bg);
+            background: #ffffff;
             z-index: 5;
             padding: 40px;
             text-align: center;
@@ -1112,7 +1123,7 @@
             }
 
             .kb-error-page p {
-                color: var(--muted);
+                color: #555;
                 font-size: 13px;
                 max-width: 400px;
             }
@@ -1183,7 +1194,6 @@
     <button class="tab" data-tab="hacks">Hacks</button>
     <button class="tab" data-tab="bypass">Bypass</button>
     <button class="tab" data-tab="browser">Browser</button>
-    <button class="tab" data-tab="remote">PC Remote</button>
     <button class="tab" data-tab="ai">AI</button>
     <div class="spacer"></div>
     <div class="user-chip">
@@ -1291,6 +1301,7 @@
         <div class="kb-extras">
           <button id="kb-fullscreen" title="Fullscreen">&#9974;</button>
           <button id="kb-proxy-cycle" title="Switch proxy">CORSProxy</button>
+          <button id="kb-pc-mode" title="Control your home PC through Tor - requires KaidTorBrowser.exe running at home">&#9679; My PC</button>
         </div>
       </div>
       <div class="kb-bookmarks" id="kb-bookmarks">
@@ -1310,32 +1321,21 @@
           <h3 id="kb-error-title">Failed to load</h3>
           <p id="kb-error-msg">The page could not be loaded through the proxy.</p>
         </div>
-        <iframe id="kb-frame" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-presentation" srcdoc="<html><body style='margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0b0b10;color:#9a9ab0;font-family:sans-serif;text-align:center'><div><h2 style='color:#ff2d2d'>Kaid Browser</h2><p>Type a URL above and press Go</p></div></body></html>"></iframe>
+        <iframe id="kb-frame" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-presentation" srcdoc="<html><body style='margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#ffffff;color:#333;font-family:sans-serif;text-align:center'><div><h2 style='color:#ff2d2d'>Kaid Browser</h2><p>Type a URL above and press Go &mdash; or click <b>&#9679; My PC</b> to control your home PC through Tor</p></div></body></html>"></iframe>
         <div class="kb-proxy-badge" id="kb-proxy-badge">CORSProxy</div>
+        <div id="pc-view">
+          <div class="pc-bar">
+            <input type="text" id="pc-type" placeholder="Type text for the page, press Enter..." autocomplete="off">
+            <button id="pc-key-enter" title="Press Enter on the page">&#9166;</button>
+            <button id="pc-key-back" title="Press Backspace on the page">&#9003;</button>
+          </div>
+          <div class="pc-status" id="pc-status">Connecting to Firebase...</div>
+          <div id="pc-wrap" tabindex="0">
+            <img id="pc-screen" alt="Kaid PC screen" draggable="false">
+          </div>
+        </div>
+        <div class="kb-proxy-badge" id="kb-pc-badge">MY PC &middot; TOR</div>
       </div>
-    </section>
-    <section class="tab-view" id="tab-remote">
-      <h3 class="section-title">Kaid PC Remote</h3>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">
-        Control the Tor browser running on your home PC from anywhere - like you are sitting at it.
-        Click the screen, scroll it, type below and press Send. It all happens on your PC through Tor,
-        and you watch it live right here.</p>
-      <div class="ie-toolbar">
-        <input type="text" id="pc-url" placeholder="Search or website address..." autocomplete="off">
-        <button id="pc-send">Open on my PC</button>
-      </div>
-      <div id="pc-status" style="font-size:13px;color:var(--muted);margin:12px 0;">Connecting to Firebase...</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <input type="text" id="pc-type" placeholder="Type text for the page, then press Enter..." autocomplete="off"
-               style="flex:1;padding:10px 12px;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;">
-        <button id="pc-key-enter" title="Press Enter on the page">&#9166;</button>
-        <button id="pc-key-back" title="Press Backspace on the page">&#9003;</button>
-      </div>
-      <div id="pc-wrap" tabindex="0" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#000;outline:none;cursor:crosshair;">
-        <img id="pc-screen" alt="Kaid PC screen" draggable="false" style="display:block;width:100%;opacity:.25;user-select:none;-webkit-user-drag:none;">
-      </div>
-      <p style="color:var(--muted);font-size:12px;margin-top:8px;">
-        Click = left click &nbsp;|&nbsp; Scroll wheel over screen = scroll page &nbsp;|&nbsp; Focus the screen box and press Enter / Backspace / arrows to control the page.</p>
     </section>
     <section class="tab-view" id="tab-ai">
       <div class="chat-panel">
@@ -2726,7 +2726,7 @@ ieLog('Isolation Engine v3 ready', 'log');
         kbError.style.display = 'flex';
         kbErrorTitle.textContent = 'Failed to load';
         kbErrorMsg.textContent = 'All proxies failed. Start the proxy server or try another URL.';
-        kbFrame.srcdoc = '<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0b0b10;color:#9a9ab0;font-family:sans-serif;text-align:center"><div><h2 style="color:#ff2d2d">Could not load page</h2><p>Start the proxy server:<br><code style="color:#35c25f">Start Proxy.bat</code></p><p style="margin-top:10px;font-size:12px">Or try CORSProxy (slower)</p></div></body></html>';
+        kbFrame.srcdoc = '<html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#ffffff;color:#333;font-family:sans-serif;text-align:center"><div><h2 style="color:#ff2d2d">Could not load page</h2><p>All proxies failed for this site. Try the <b>&#9679; My PC</b> button - it loads pages on your home PC instead.</p></div></body></html>';
       });
   }
 
@@ -2804,12 +2804,15 @@ ieLog('Isolation Engine v3 ready', 'log');
     });
 })();
 
-/* ===== Kaid PC Remote - Firebase bridge to KaidTorBrowser.exe ===== */
+/* ===== Kaid PC Remote - Firebase bridge to KaidTorBrowser.exe (lives inside Browser tab) ===== */
 (function() {
   var PC_ID = "main";
   var FB_DB = "https://kaid-gaming-v3-default-rtdb.firebaseio.com";
-  var pcUrl = $("pc-url"), pcSend = $("pc-send"), pcStatus = $("pc-status"), pcImg = $("pc-screen");
-  var pcType = $("pc-type"), pcWrap = $("pc-wrap");
+  var pcStatus = $("pc-status"), pcImg = $("pc-screen"), pcWrap = $("pc-wrap");
+  var pcType = $("pc-type"), pcView = $("pc-view"), pcBadge = $("kb-pc-badge");
+  var kbUrlEl = document.getElementById("kb-url");
+  var pcModeBtn = document.getElementById("kb-pc-mode");
+  var pcOnline = false, pcMode = false, lastStatusHtml = "Connecting to Firebase...", flashT = null;
 
   function fbRef(tail) { return firebase.database().ref("kaidPc/" + PC_ID + tail); }
 
@@ -2817,6 +2820,16 @@ ieLog('Isolation Engine v3 ready', 'log');
     if (!window.firebase || !firebase.database) return;
     obj.ts = Date.now();
     fbRef("/input").push(obj).catch(function() {});
+  }
+
+  function showStatus(html) {
+    lastStatusHtml = html;
+    if (!flashT) pcStatus.innerHTML = html;
+  }
+  function flash(msg, ms) {
+    pcStatus.innerHTML = "<span style='color:var(--accent,#ff2d2d)'>&#9679;</span> " + esc(msg);
+    if (flashT) clearTimeout(flashT);
+    flashT = setTimeout(function() { flashT = null; pcStatus.innerHTML = lastStatusHtml; }, ms || 4000);
   }
 
   function pcNormalize(v) {
@@ -2829,27 +2842,68 @@ ieLog('Isolation Engine v3 ready', 'log');
     return "https://duckduckgo.com/?q=" + encodeURIComponent(v);
   }
 
-  function doSend() {
-    if (!window.firebase || !firebase.database) { pcStatus.textContent = "Firebase failed to load - cannot reach your PC."; return; }
-    var target = pcNormalize(pcUrl.value);
-    if (!target) return;
-    fbRef("/cmd").push({ url: target, ts: Date.now() }).then(function() {
-      pcStatus.innerHTML = "<span style='color:var(--ok)'>&#9679;</span> Sent - opening on your PC through Tor...";
-      pcUrl.value = "";
-    }).catch(function(e) { pcStatus.textContent = "Send failed: " + e.message; });
+  function sendCmd(url) {
+    if (!window.firebase || !firebase.database) { flash("Firebase failed to load."); return false; }
+    fbRef("/cmd").push({ url: url, ts: Date.now() }).catch(function() {});
+    flash("Sent - opening on your home PC through Tor...", 3000);
+    return true;
   }
-  pcSend.addEventListener("click", doSend);
-  pcUrl.addEventListener("keydown", function(e) { if (e.key === "Enter") { e.preventDefault(); doSend(); } });
 
-  /* Click on the streamed screen = real click on the PC */
+  /* ---- My PC mode toggle ---- */
+  function setPcMode(on) {
+    if (on && !pcOnline) {
+      flash("Your PC is not online. Start KaidTorBrowser.exe on your home computer first.", 5000);
+      return;
+    }
+    pcMode = on && pcOnline;
+    pcView.style.display = pcMode ? "flex" : "none";
+    pcBadge.style.display = pcMode ? "" : "none";
+    pcModeBtn.classList.toggle("on", pcMode);
+    flash(pcMode ? "My PC mode ON - address bar, bookmarks and Go now control your home PC." : "Proxy mode.", 3500);
+    if (pcMode) { try { pcWrap.focus(); } catch (err) {} }
+  }
+  pcModeBtn.addEventListener("click", function(e) { e.preventDefault(); setPcMode(!pcMode); });
+
+  /* In PC mode the browser controls go to the home PC instead of the proxy.
+     Capture phase at document level so these run before the proxy handlers. */
+  document.addEventListener("click", function(e) {
+    if (!pcMode) return;
+    var t = e.target.closest("#kb-go,.kb-bm,#kb-home,#kb-back,#kb-fwd,#kb-refresh");
+    if (!t || t.classList.contains("kb-bm-add")) return;
+    e.preventDefault(); e.stopPropagation();
+    if (t.id === "kb-go") {
+      var u = pcNormalize(kbUrlEl.value);
+      if (u) sendCmd(u);
+    } else if (t.dataset && t.dataset.url) {
+      sendCmd(t.dataset.url);
+      kbUrlEl.value = t.dataset.url.replace(/^https?:\/\//, "");
+    } else if (t.id === "kb-home") {
+      kbUrlEl.value = "";
+      sendCmd("https://duckduckgo.com");
+    } else {
+      flash("Back / Forward / Refresh only work in Proxy mode - use your PC's own buttons on screen.", 4500);
+    }
+  }, true);
+
+  document.addEventListener("keydown", function(e) {
+    if (!pcMode || e.key !== "Enter") return;
+    if (e.target === kbUrlEl) {
+      e.preventDefault(); e.stopPropagation();
+      var u = pcNormalize(kbUrlEl.value);
+      if (u) sendCmd(u);
+    }
+  }, true);
+
+  /* Click on the streamed screen = real click on the PC (handles letterboxing) */
   pcImg.addEventListener("pointerdown", function(e) {
     var r = pcImg.getBoundingClientRect();
-    if (!r.width || !r.height) return;
-    sendInput({
-      t: "click",
-      x: +((e.clientX - r.left) / r.width).toFixed(4),
-      y: +((e.clientY - r.top) / r.height).toFixed(4)
-    });
+    if (!r.width || !r.height || !pcImg.naturalWidth) return;
+    var scale = Math.min(r.width / pcImg.naturalWidth, r.height / pcImg.naturalHeight);
+    var dw = pcImg.naturalWidth * scale, dh = pcImg.naturalHeight * scale;
+    var ox = r.left + (r.width - dw) / 2, oy = r.top + (r.height - dh) / 2;
+    var x = (e.clientX - ox) / dw, y = (e.clientY - oy) / dh;
+    if (x < 0 || x > 1 || y < 0 || y > 1) return;
+    sendInput({ t: "click", x: +x.toFixed(4), y: +y.toFixed(4) });
   });
 
   /* Scroll wheel over the screen scrolls the real page */
@@ -2868,7 +2922,6 @@ ieLog('Isolation Engine v3 ready', 'log');
     if (e.key === "Enter") { e.preventDefault(); sendTyped(); sendInput({ t: "key", k: "Enter" }); }
   });
 
-  /* Keyboard buttons + physical keys when the screen box is focused */
   function bindKeyBtn(id, k) {
     var el = $(id);
     if (el) el.addEventListener("click", function() { sendInput({ t: "key", k: k }); });
@@ -2889,20 +2942,28 @@ ieLog('Isolation Engine v3 ready', 'log');
 
   function bootRemote() {
     if (!window.firebase || !firebase.database) { setTimeout(bootRemote, 400); return; }
-    try { firebase.initializeApp({ databaseURL: FB_DB }); } catch (e) {}
+    try { firebase.initializeApp({ databaseURL: FB_DB }); } catch (err) {}
 
     fbRef("/status").on("value", function(snap) {
       var d = snap.val();
       if (!d || !d.online) {
-        pcStatus.textContent = "Your PC is not running KaidTorBrowser right now. Start KaidTorBrowser.exe on your home computer and this page will light up.";
+        pcOnline = false;
+        if (pcMode) setPcMode(false);
+        pcModeBtn.innerHTML = "&#9679; My PC";
         pcImg.style.opacity = ".25";
+        showStatus("<span style='color:#888'>&#9679;</span> Home PC offline - click My PC after starting KaidTorBrowser.exe there.");
         return;
       }
+      pcOnline = true;
       pcImg.style.opacity = "";
-      var html = "<span style='color:var(--ok)'>&#9679;</span> Kaid PC online &nbsp;-&nbsp; Tor: " +
+      var torOk = String(d.tor || "").indexOf("100%") !== -1;
+      pcModeBtn.innerHTML = torOk
+        ? "<span style='color:var(--ok,#35c25f)'>&#9679;</span> My PC"
+        : "&#9679; My PC";
+      var html = "<span style='color:var(--ok,#35c25f)'>&#9679;</span> PC online &nbsp;-&nbsp; Tor: " +
         esc(d.tor || "?") + " &nbsp;-&nbsp; Tab: <b>" + esc(d.activeTitle || "-") + "</b>";
       if (d.activeUrl) html += " &nbsp;<span style='color:var(--muted)'>" + esc(d.activeUrl) + "</span>";
-      pcStatus.innerHTML = html;
+      showStatus(html);
     });
 
     fbRef("/screen").on("value", function(snap) {
