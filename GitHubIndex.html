@@ -1317,16 +1317,25 @@
     <section class="tab-view" id="tab-remote">
       <h3 class="section-title">Kaid PC Remote</h3>
       <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">
-        Control the Tor browser running on your home PC from anywhere. Type a search or address below and it opens
-        instantly in a new Tor tab on your machine - you watch the screen live, right here.</p>
+        Control the Tor browser running on your home PC from anywhere - like you are sitting at it.
+        Click the screen, scroll it, type below and press Send. It all happens on your PC through Tor,
+        and you watch it live right here.</p>
       <div class="ie-toolbar">
         <input type="text" id="pc-url" placeholder="Search or website address..." autocomplete="off">
         <button id="pc-send">Open on my PC</button>
       </div>
       <div id="pc-status" style="font-size:13px;color:var(--muted);margin:12px 0;">Connecting to Firebase...</div>
-      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#000;">
-        <img id="pc-screen" alt="Kaid PC screen" style="display:block;width:100%;opacity:.25;">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input type="text" id="pc-type" placeholder="Type text for the page, then press Enter..." autocomplete="off"
+               style="flex:1;padding:10px 12px;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;">
+        <button id="pc-key-enter" title="Press Enter on the page">&#9166;</button>
+        <button id="pc-key-back" title="Press Backspace on the page">&#9003;</button>
       </div>
+      <div id="pc-wrap" tabindex="0" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#000;outline:none;cursor:crosshair;">
+        <img id="pc-screen" alt="Kaid PC screen" draggable="false" style="display:block;width:100%;opacity:.25;user-select:none;-webkit-user-drag:none;">
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">
+        Click = left click &nbsp;|&nbsp; Scroll wheel over screen = scroll page &nbsp;|&nbsp; Focus the screen box and press Enter / Backspace / arrows to control the page.</p>
     </section>
     <section class="tab-view" id="tab-ai">
       <div class="chat-panel">
@@ -2800,8 +2809,15 @@ ieLog('Isolation Engine v3 ready', 'log');
   var PC_ID = "main";
   var FB_DB = "https://kaid-gaming-v3-default-rtdb.firebaseio.com";
   var pcUrl = $("pc-url"), pcSend = $("pc-send"), pcStatus = $("pc-status"), pcImg = $("pc-screen");
+  var pcType = $("pc-type"), pcWrap = $("pc-wrap");
 
   function fbRef(tail) { return firebase.database().ref("kaidPc/" + PC_ID + tail); }
+
+  function sendInput(obj) {
+    if (!window.firebase || !firebase.database) return;
+    obj.ts = Date.now();
+    fbRef("/input").push(obj).catch(function() {});
+  }
 
   function pcNormalize(v) {
     v = (v || "").trim(); if (!v) return null;
@@ -2825,6 +2841,52 @@ ieLog('Isolation Engine v3 ready', 'log');
   pcSend.addEventListener("click", doSend);
   pcUrl.addEventListener("keydown", function(e) { if (e.key === "Enter") { e.preventDefault(); doSend(); } });
 
+  /* Click on the streamed screen = real click on the PC */
+  pcImg.addEventListener("pointerdown", function(e) {
+    var r = pcImg.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    sendInput({
+      t: "click",
+      x: +((e.clientX - r.left) / r.width).toFixed(4),
+      y: +((e.clientY - r.top) / r.height).toFixed(4)
+    });
+  });
+
+  /* Scroll wheel over the screen scrolls the real page */
+  pcWrap.addEventListener("wheel", function(e) {
+    e.preventDefault();
+    sendInput({ t: "scroll", dy: Math.round(e.deltaY || 0) });
+  }, { passive: false });
+
+  /* Typing */
+  function sendTyped() {
+    var v = pcType.value;
+    if (v) sendInput({ t: "text", text: v });
+    pcType.value = "";
+  }
+  pcType.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") { e.preventDefault(); sendTyped(); sendInput({ t: "key", k: "Enter" }); }
+  });
+
+  /* Keyboard buttons + physical keys when the screen box is focused */
+  function bindKeyBtn(id, k) {
+    var el = $(id);
+    if (el) el.addEventListener("click", function() { sendInput({ t: "key", k: k }); });
+  }
+  bindKeyBtn("pc-key-enter", "Enter");
+  bindKeyBtn("pc-key-back", "Backspace");
+
+  var KEY_NAMES = ["Enter","Backspace","Escape","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","PageUp","PageDown","Tab"];
+  pcWrap.addEventListener("keydown", function(e) {
+    if (KEY_NAMES.indexOf(e.key) !== -1) {
+      e.preventDefault();
+      sendInput({ t: "key", k: e.key });
+    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      sendInput({ t: "text", text: e.key });
+    }
+  });
+
   function bootRemote() {
     if (!window.firebase || !firebase.database) { setTimeout(bootRemote, 400); return; }
     try { firebase.initializeApp({ databaseURL: FB_DB }); } catch (e) {}
@@ -2845,7 +2907,11 @@ ieLog('Isolation Engine v3 ready', 'log');
 
     fbRef("/screen").on("value", function(snap) {
       var d = snap.val();
-      if (d && d.jpg) pcImg.src = "data:image/jpeg;base64," + d.jpg;
+      if (d && d.jpg) {
+        pcImg.src = "data:image/jpeg;base64," + d.jpg;
+        var age = Math.max(0, Math.round(Date.now() / 1000 - (d.ts || 0)));
+        pcImg.title = "Screen age: " + age + "s - click it to interact";
+      }
     });
   }
   bootRemote();
