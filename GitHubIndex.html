@@ -2091,6 +2091,15 @@ function openGame(src, name) {
   var baseUrl = src.substring(0, src.lastIndexOf('/') + 1);
   var repoRoot = baseUrl.substring(0, baseUrl.indexOf('/main/') + 6);
 
+  /* jsdelivr mirror: proper MIME types (application/javascript etc.) so dynamically
+     loaded scripts / workers / wasm inside the game actually execute */
+  var jsBase = baseUrl;
+  try {
+    var _mark = '/Kaid-Gaming/main/';
+    var _pos = baseUrl.indexOf(_mark);
+    if (_pos > -1) jsBase = 'https://cdn.jsdelivr.net/gh/Kaidemon7/Kaid-Gaming@main/' + baseUrl.substring(_pos + _mark.length);
+  } catch (_e) {}
+
   function resolveUrl(url) {
     if (!url) return null;
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) return url;
@@ -2134,9 +2143,9 @@ function openGame(src, name) {
 
       if (fetches.length === 0) {
         if (result.indexOf('<base') === -1) {
-          result = result.replace(/<head([^>]*)>/i, '<head$1><base href="' + baseUrl + '">');
+          result = result.replace(/<head([^>]*)>/i, '<head$1><base href="' + jsBase + '">');
           if (result.indexOf('<head') === -1 && result.indexOf('<HEAD') === -1) {
-            result = '<head><base href="' + baseUrl + '"></head>' + result;
+            result = '<head><base href="' + jsBase + '"></head>' + result;
           }
         }
         frame.srcdoc = result;
@@ -2148,9 +2157,9 @@ function openGame(src, name) {
           result = result.split('\x00GAMEFETCH_' + item.slot + '\x00').join(item.html);
         });
         if (result.indexOf('<base') === -1) {
-          result = result.replace(/<head([^>]*)>/i, '<head$1><base href="' + baseUrl + '">');
+          result = result.replace(/<head([^>]*)>/i, '<head$1><base href="' + jsBase + '">');
           if (result.indexOf('<head') === -1 && result.indexOf('<HEAD') === -1) {
-            result = '<head><base href="' + baseUrl + '"></head>' + result;
+            result = '<head><base href="' + jsBase + '"></head>' + result;
           }
         }
         frame.srcdoc = result;
